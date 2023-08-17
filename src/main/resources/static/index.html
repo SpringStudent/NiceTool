@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title></title>
+    <script type="text/javascript" src="./js/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+<div id="app">
+    <div class="header">
+        <h1>开发工具</h1>
+    </div>
+    <div class="container">
+        <div class="c_left">
+            <ul type="none" class="c_left_nav">
+                <li :class="divId=='createImage'?'li_selected':'li_nonselected'"><a @click="changeDiv('createImage')">图片生成</a></li>
+                <li :class="divId=='pdfConvert'?'li_selected':'li_nonselected'"><a @click="changeDiv('pdfConvert')">pdf转换</a></li>
+                <li :class="divId=='ipRegion'?'li_selected':'li_nonselected'"><a @click="changeDiv('ipRegion')">ip归属地</a></li>
+                <li :class="divId=='genUuid'?'li_selected':'li_nonselected'"><a @click="changeDiv('genUuid')">uuid生成</a></li>
+                <li :class="divId=='md5'?'li_selected':'li_nonselected'"><a @click="changeDiv('md5')">md5加密</a></li>
+                <li :class="divId=='timeConvert'?'li_selected':'li_nonselected'"><a @click="changeDiv('timeConvert')">时间转换</a></li>
+            </ul>
+        </div>
+        <div class="c_right">
+            <div id="genUuid" v-if="divId=='genUuid'">
+                <input type="number" maxlength="3" class="text_input" v-model="uuidCount" placeholder="生成uuid的个数"  min="1" max="100"/>
+                <button @click="doGenUuid()" class="bttn">生成</button>
+                <div style="margin-top: 15px" v-show="uuids!==undefined && uuids.length > 0">
+                    <label style="font-size: 20px;font-weight: lighter">已为您生成了{{uuids.length}}个uuid:</label>
+                </div>
+                <div class="input_result" style="border: 1px solid #dee2e6;color: red;font-size: 18px" v-show="uuids!==undefined && uuids.length > 0">
+                    <template v-for="uuid in uuids">
+                        {{uuid}}<br>
+                    </template>
+                </div>
+            </div>
+            <div id="md5" v-if="divId=='md5'">
+                <input type="text" maxlength="100" class="text_input" v-model="md5Text" placeholder="输入加密字符串"/>
+                <button @click="doMd5()" class="bttn">加密</button>
+                <div class="input_result" v-show="md5Result!=''">
+                    <label style="font-size: 20px;font-weight: lighter">加密结果:</label>
+                    <span>{{md5Result}}</span>
+                </div>
+
+            </div>
+            <div id="ipRegion" v-if="divId=='ipRegion'">
+                <input type="text" maxlength="100" class="text_input" v-model="ipText" placeholder="输入查询ip地址"/>
+                <button @click="doIpRegion()" class="bttn">查询</button>
+                <div class="input_result" v-show="ipRegionResult!=''">
+                    <label style="font-size: 20px;font-weight: lighter">ip归属地:</label>
+                    <span>{{ipRegionResult}}</span>
+                </div>
+            </div>
+            <div id="createImage" v-if="divId=='createImage'">
+                <label style="padding-left: 25px;padding-right: 5px;font-size: 20px">长度:</label>
+                <input type="number" maxlength="4" step="100" class="number_input" v-model="imageWidth" placeholder="图片长度" min="100" max="2000"/>
+                <label style="padding-left: 25px;padding-right: 5px;font-size: 20px">高度:</label>
+                <input type="number" maxlength="4" step="100" class="number_input" v-model="imageHeight" placeholder="图片高度" min="100" max="2000"/>
+                <label style="padding-left: 25px;padding-right: 5px;font-size: 20px">大小:</label>
+                <input type="number" maxlength="3" class="number_input" v-model="imageMB" placeholder="图片大小MB" min="1" max="200"/>
+                <label style="padding-left: 25px;padding-right: 5px;font-size: 20px">格式:</label>
+                <select class="image_select" v-model="imageType">
+                    <option value="jpg">jpg</option>
+                    <option value="jpeg">jpeg</option>
+                    <option value="png">png</option>
+                </select>
+                <button @click="doViewImage()" class="bttn">预览</button>
+                <button @click="doCreateImage()" class="bttn">下载</button>
+                <div class="input_result" v-show="createImageUri!=''">
+                    <img :src="createImageUri" style="border-color: red;border: 2px solid red"/>
+                </div>
+            </div>
+            <div id="timeConvert" v-if="divId=='timeConvert'">
+                <label style="padding-left: 25px;padding-right: 5px;font-size: 20px">当前时间戳(秒):</label>
+                <span style="color: red;background-color: black">{{nowSeconds}}</span>
+                <label style="padding-left: 25px;padding-right: 5px;font-size: 20px">当前时间戳(毫秒):</label>
+                <span style="color: red;background-color: black">{{nowMillSeconds}}</span>
+                <hr>
+                <table style="margin: 0 auto;">
+                <tr>
+                    <td><label>时间</label></td>
+                    <td> <input type="text" v-model="inputDate"></td>
+                    <td><button @click="date2Mills()">转换</button></td>
+                    <td> <input type="text" v-model="inputDateMills"></td>
+                    <td><label>毫秒</label></td>
+                </tr>
+                <tr>
+                    <td><label>时间</label></td>
+                    <td> <input type="text" v-model="inputDate"></td>
+                    <td><button @click="date2Seconds()">转换</button></td>
+                    <td> <input type="text" v-model="inputDateSeconds"></td>
+                    <td><label>秒</label></td>
+                </tr>
+                <tr>
+                    <td> <label>时间戳(秒)</label></td>
+                    <td><input type="text" v-model="inputSeconds"></td>
+                    <td> <button @click="seconds2Date()">转换</button></td>
+                    <td><input type="text" v-model="inputSecondsDate"></td>
+                </tr>
+                <tr>
+                    <td> <label>时间戳(毫秒)</label></td>
+                    <td><input type="text" v-model="inputMills"></td>
+                    <td> <button @click="mills2Date()">转换</button></td>
+                    <td><input type="text" v-model="inputMillsDate"></td>
+                </tr>
+                </table>
+            </div>
+            <div id="pdfConvert" v-if="divId=='pdfConvert'">
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+<script type="text/javascript">
+    var vm =new Vue({
+        el: "#app",
+        data: {
+            divId: '',
+            md5Text:'',
+            ipText:'',
+            imageWidth:'',
+            imageHeight:'',
+            imageMB:'',
+            imageType:'jpg',
+            uuidCount:'',
+            uuids:[],
+            md5Result:'',
+            createImageUri:'',
+            ipRegionResult:'',
+            nowSeconds:'',
+            nowMillSeconds:'',
+            inputDate:'',
+            inputDateMills:'',
+            inputDateSeconds:'',
+            inputSeconds:'',
+            inputMills:'',
+            inputSecondsDate:'',
+            inputMillsDate:'',
+        },
+        mounted() {
+            var current = new Date();
+            this.nowMillSeconds = current.getTime();
+            this.nowSeconds = Math.round(current.getTime()/1000);
+            this.inputDate = this.formatDate(current);
+            this.inputMills = current.getTime();
+            this.inputSeconds = Math.round(current.getTime()/1000);
+            this.changeDiv('createImage');
+        },
+        methods: {
+            changeDiv(divId) {
+                this.divId = divId;
+            },
+            doGenUuid(){
+                axios.get('http://172.16.1.72:8555/tool/genUuids?uuidCount='+this.uuidCount)
+                    .then( (response) => {
+                        this.uuids=[];
+                        var resUuids = response.data.result;
+                        for(var i = 0; i < resUuids.length; i++) {
+                            this.uuids.push(resUuids[i]);
+                        }
+                    })
+                    .catch( (error) => {
+                        console.log(error);
+                    });
+            },
+            doMd5(){
+                axios.get('http://172.16.1.72:8555/tool/md5?text='+this.md5Text)
+                    .then( (response) => {
+                        this.md5Result = response.data.result;
+                    })
+                    .catch( (error) => {
+                        console.log(error);
+                    });
+            },
+            doIpRegion(){
+                axios.get('http://172.16.1.72:8555/tool/ipRegion?ip='+this.ipText)
+                    .then( (response) => {
+                        this.ipRegionResult = response.data.result;
+                    })
+                    .catch( (error) => {
+                        console.log(error);
+                    });
+            },
+            doViewImage(){
+                this.createImageUri = "http://172.16.1.72:8555/tool/createImage?width="+this.imageWidth+"&height="+this.imageHeight+"&MB="+this.imageMB+"&imageType="+this.imageType;
+            },
+            doCreateImage(){
+                this.createImageUri = "http://172.16.1.72:8555/tool/createImage?width="+this.imageWidth+"&height="+this.imageHeight+"&MB="+this.imageMB+"&imageType="+this.imageType;
+                window.open(this.createImageUri);
+            },
+            formatDate(date){
+                console.log(date)
+                const year = date.getFullYear();
+                const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                const day = date.getDate().toString().padStart(2, '0');
+                const hour = date.getHours().toString().padStart(2, '0');
+                const minute = date.getMinutes().toString().padStart(2, '0');
+                const second = date.getSeconds().toString().padStart(2, '0');
+                const formattedDate = `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+                return formattedDate
+            },
+            parseDate(dateStr){
+                 return Date.parse(new Date(dateStr).toString());
+            },
+            date2Mills(){
+                this.inputDateMills = this.parseDate(this.inputDate);
+            },
+            date2Seconds(){
+                this.inputDateSeconds = Math.round(this.parseDate(this.inputDate)/1000);
+            },
+            seconds2Date(){
+                this.inputSecondsDate = this.formatDate(new Date(this.inputSeconds*1000));
+            },
+            mills2Date(){
+                this.inputMillsDate = this.formatDate(new Date(this.inputMills*1));
+            },
+        }
+    });
+</script>
+<style>
+    ul {
+        margin: 0;
+        padding: 0;
+        list-style-type: none;
+    }
+
+    .header {
+        margin: 0 120px;
+        width: 100%;
+        height: 70px;
+        text-align: center;
+    }
+
+    .container {
+        width: 100%;
+        height: 680px;
+        margin: 0 120px;
+        display: flex;
+    }
+
+    .c_left {
+        width: 10%;
+        background-color: whitesmoke;
+    }
+
+    .c_left_nav li {
+        margin-top: 18px;
+    }
+
+    .c_left_nav li a {
+        text-decoration: none;
+        font-size: 15px;
+        font-weight: bold;
+        color: black;
+        margin-left: 48px;
+    }
+
+    .li_selected{
+        background-color: #d2c9c9;
+    }
+
+    .c_left_nav li a:hover {
+        color: #9e9edd;
+        text-decoration: none;
+    }
+
+    .c_right {
+        margin-left: 50px;
+        text-align: center;
+        width: 80%;
+    }
+    .text_input{
+        width: 300px;
+        height: 30px;
+        font-size: 16px;
+        background-color: white;
+    }
+    .number_input{
+        width: 160px;
+        height: 30px;
+        font-size: 16px;
+        background-color: white;
+    }
+    .bttn{
+        margin-left: 15px;
+        height: 35px;
+        font-size: 18px;
+    }
+    .input_result{
+        margin-top: 20px;
+    }
+    .input_result span{
+        font-size: 23px;
+        color: red;
+        font-weight: bold;
+    }
+    .image_select{
+        width: 140px;
+        height: 35px;
+        background-color: white;
+        border: 2px solid;
+        font-size: 16px
+    }
+</style>
+</html>
