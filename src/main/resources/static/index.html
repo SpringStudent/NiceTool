@@ -171,8 +171,10 @@
             changeDiv(divId) {
                 this.divId = divId;
             },
-
             doGenUuid(){
+                if(this.uuidCount==''||this.uuidCount>100){
+                    this.uuidCount = 100;
+                }
                 axios.get('http://172.16.1.72:8555/tool/genUuids?uuidCount='+this.uuidCount)
                     .then( (response) => {
                         this.uuids=[];
