@@ -41,7 +41,6 @@
                     <label style="font-size: 20px;font-weight: lighter">加密结果:</label>
                     <span>{{md5Result}}</span>
                 </div>
-
             </div>
             <div id="ipRegion" v-if="divId=='ipRegion'">
                 <input type="text" maxlength="100" class="text_input" v-model="ipText" placeholder="输入查询ip地址"/>
@@ -52,14 +51,29 @@
                 </div>
             </div>
             <div id="createImage" v-if="divId=='createImage'">
-                <label style="padding-left: 25px;padding-right: 5px;font-size: 20px">背景色:</label>
-                <input type="color" v-model="imageColor" class="number_input"/>
-                <label style="padding-left: 25px;padding-right: 5px;font-size: 20px">长度:</label>
-                <input type="number" maxlength="4" step="100" class="number_input" v-model="imageWidth" placeholder="图片长度" min="100" max="2000"/>
-                <label style="padding-left: 25px;padding-right: 5px;font-size: 20px">高度:</label>
-                <input type="number" maxlength="4" step="100" class="number_input" v-model="imageHeight" placeholder="图片高度" min="100" max="2000"/>
-                <label style="padding-left: 25px;padding-right: 5px;font-size: 20px">大小:</label>
-                <input type="number" maxlength="3" class="number_input" v-model="imageMB" placeholder="图片大小MB" min="1" max="200"/>
+                <div style="position: relative;display: inline-block">
+                    <label style="padding-left: 25px;padding-right: 5px;font-size: 20px">背景色:</label>
+                    <input type="color" v-model="imageColor" class="number_input"/>
+                </div>
+
+                <div style="position: relative;display: inline-block">
+                    <label style="padding-left: 25px;padding-right: 5px;font-size: 20px">长度:</label>
+                    <input type="number" maxlength="4" step="100" class="number_input" v-model="imageWidth" placeholder="图片长度" min="100" max="2000" style="position: relative;display: inline-block">
+                    <span class="input_tipspan" v-show="imageWidthError!=''">{{imageWidthError}}</span>
+                </div>
+
+                <div style="position: relative;display: inline-block">
+                    <label style="padding-left: 25px;padding-right: 5px;font-size: 20px">高度:</label>
+                    <input type="number" maxlength="4" step="100" class="number_input" v-model="imageHeight" placeholder="图片高度" min="100" max="2000"/>
+                    <span class="input_tipspan" v-show="imageHeightError!=''">{{imageHeightError}}</span>
+                </div>
+
+                <div style="position: relative;display: inline-block">
+                    <label style="padding-left: 25px;padding-right: 5px;font-size: 20px">大小:</label>
+                    <input type="number" maxlength="3" class="number_input" v-model="imageMB" placeholder="图片大小MB" min="1" max="200"/>
+                    <span class="input_tipspan" v-show="imageMBError!=''">{{imageMBError}}</span>
+                </div>
+
                 <label style="padding-left: 25px;padding-right: 5px;font-size: 20px">格式:</label>
                 <select class="image_select" v-model="imageType">
                     <option value="jpg">jpg</option>
@@ -121,8 +135,11 @@
             md5Text:'',
             ipText:'',
             imageWidth:'',
+            imageWidthError:'',
             imageHeight:'',
+            imageHeightError:'',
             imageMB:'',
+            imageMBError:'',
             imageType:'jpg',
             uuidCount:'',
             uuids:[],
@@ -186,12 +203,63 @@
                         console.log(error);
                     });
             },
+            validateImageParam(){
+                this.imageWidthError ='';
+                this.imageHeightError='';
+                this.imageMBError = '';
+                var result = true;
+                if(this.imageWidth==''){
+                    this.imageWidthError = '图片长度不能为空';
+                    result = false;
+                }else{
+                    if(this.imageWidth<0){
+                        this.imageWidthError = '图片长度不小于0';
+                        result = false;
+                    }
+                    if(this.imageWidth>2000){
+                        this.imageWidthError = '图片长度不能超过2000';
+                        result = false;
+
+                    }
+                }
+                if(this.imageHeight==''){
+                    this.imageHeightError = '图片宽度不能为空';
+                    result = false;
+                }else{
+                    if(this.imageHeight<0){
+                        this.imageHeightError = '图片宽度不能小于0';
+                        result = false;
+                    }
+                    if(this.imageHeight>2000){
+                        this.imageHeightError = '图片宽度不能超过2000';
+                        result = false;
+                    }
+                }
+                if(this.imageMB==''){
+                    this.imageMBError = '图片大小不能为空';
+                    result = false;
+                }else{
+                    if(this.imageMB<0){
+                        this.imageMBError = '图片大小不能小于0';
+                        result = false;
+                    }
+                    if(this.imageMB>200){
+                        this.imageMBError = '图片大小不能超过200MB';
+                        result = false;
+                    }
+                }
+                return result;
+            },
             doViewImage(){
-                this.createImageUri = "http://172.16.1.72:8555/tool/createImage?width="+this.imageWidth+"&height="+this.imageHeight+"&MB="+this.imageMB+"&imageType="+this.imageType+"&imageColor="+this.imageColor.substr(1)+"&timestamp="+new Date().getTime();
+                if(this.validateImageParam()){
+                    this.createImageUri = "http://172.16.1.72:8555/tool/createImage?width="+this.imageWidth+"&height="+this.imageHeight+"&MB="+this.imageMB+"&imageType="+this.imageType+"&imageColor="+this.imageColor.substr(1)+"&timestamp="+new Date().getTime();
+                }
             },
             doCreateImage(){
-                this.createImageUri = "http://172.16.1.72:8555/tool/createImage?width="+this.imageWidth+"&height="+this.imageHeight+"&MB="+this.imageMB+"&imageType="+this.imageType+"&imageColor="+this.imageColor.substr(1)+"&timestamp="+new Date().getTime();
-                window.open(this.createImageUri);
+                if(this.validateImageParam()) {
+                    this.createImageUri = "http://172.16.1.72:8555/tool/createImage?width=" + this.imageWidth + "&height=" + this.imageHeight + "&MB=" + this.imageMB + "&imageType=" + this.imageType + "&imageColor=" + this.imageColor.substr(1) + "&timestamp=" + new Date().getTime();
+                    window.open(this.createImageUri);
+                }
             },
             formatDate(date){
                 console.log(date)
@@ -286,6 +354,7 @@
         font-size: 16px;
         background-color: white;
     }
+
     .bttn{
         margin-left: 15px;
         height: 35px;
@@ -315,24 +384,12 @@
         border: 2px solid;
         font-size: 16px
     }
-    .http_mock_table{
-        width: 800px;
-        margin: 20px auto;
-        border-collapse: collapse;
-    }
-
-    .http_mock_table th {
-        background: whitesmoke;
-        color: black;
-        font-size: 16px;
-        border: 1px solid black;
-        padding: 5px;
-    }
-    .http_mock_table tr td {
-        text-align: center;
-        font-size: 16px;
-        padding: 5px;
-        border: 1px solid black;
+    .input_tipspan{
+        position: absolute;
+        top: 40px;
+        font-size: 10px;
+        color: red;
+        left: 80px;
     }
 </style>
 </html>
