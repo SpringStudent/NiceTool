@@ -14,15 +14,15 @@ import java.util.Random;
  */
 public class ImageUtil {
 
-    public static byte[] createImage(int width, int height, int MB, String imageType) throws IOException {
-        return doCreateImage(width, height, MB * 1024 * 1024, imageType, MB + "MB");
+    public static byte[] createImage(int width, int height, int MB, String imageType,String bgColor) throws IOException {
+        return doCreateImage(width, height, MB * 1024 * 1024, imageType, MB + "MB",bgColor);
     }
 
-    private static byte[] doCreateImage(int width, int height, int size, String imageType, String text) throws IOException {
+    private static byte[] doCreateImage(int width, int height, int size, String imageType, String text,String bgColor) throws IOException {
         // 创建BufferedImage
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         Graphics2D g2d = image.createGraphics();
-        g2d.setColor(Color.WHITE);
+        g2d.setColor(new Color(Integer.parseInt(bgColor.substring(0, 2), 16),Integer.parseInt(bgColor.substring(2, 4), 16), Integer.parseInt(bgColor.substring(4, 6), 16)));
         g2d.fillRect(0, 0, image.getWidth(), image.getHeight());
         g2d.setColor(Color.BLACK);
         //设置字体大小，并让位置居中

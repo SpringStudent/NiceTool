@@ -27,7 +27,7 @@ public class ToolController {
     private HttpServletResponse response;
 
     @GetMapping("/createImage")
-    public void createImage(@RequestParam int width, @RequestParam int height, @RequestParam int MB, @RequestParam String imageType) throws IOException {
+    public void createImage(@RequestParam int width, @RequestParam int height, @RequestParam int MB, @RequestParam String imageType,@RequestParam String imageColor) throws IOException {
         try {
             if (MB > 200) {
                 response.setCharacterEncoding("UTF-8");
@@ -36,7 +36,7 @@ public class ToolController {
                 return;
             }
             imageType = imageType.toLowerCase();
-            byte[] bytes = ImageUtil.createImage(width, height, MB, imageType);
+            byte[] bytes = ImageUtil.createImage(width, height, MB, imageType,imageColor);
             OutputStream outputStream = response.getOutputStream();
             response.addHeader("Content-Disposition", "attachment;filename=" + IdUtil.fastSimpleUUID() + "." + imageType);
             response.addHeader("Content-Type", "image/" + imageType);
