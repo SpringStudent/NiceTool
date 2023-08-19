@@ -18,7 +18,7 @@ public class Ip2RegionUtil {
 
     private static DbSearcher searcher;
 
-    private static final String UNKNOWN = "未知";
+    private static final String UNKNOWN = "未知区域";
 
     static {
         try {
