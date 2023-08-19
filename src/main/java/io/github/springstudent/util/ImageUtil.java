@@ -1,12 +1,12 @@
 package io.github.springstudent.util;
 
-import cn.hutool.core.util.IdUtil;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Random;
 
 /**
  * @author zhouning
@@ -38,7 +38,6 @@ public class ImageUtil {
         int x = (width - metrics.stringWidth(text)) / 2;
         int y = ((height - metrics.getHeight()) / 2) + metrics.getAscent();
         g2d.drawString(text, x, y);
-        g2d.drawChars(IdUtil.fastSimpleUUID().toCharArray(),0,32,-2000,-2000);
         g2d.dispose();
         //填充文件到指定大小
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -47,10 +46,12 @@ public class ImageUtil {
         int currentSize = imageBytes.length;
         while (currentSize < size) {
             // 图片进行填充
+            Random random = new Random();
             byte[] tmpBytes = new byte[imageBytes.length * 2];
             if (tmpBytes.length > currentSize) {
                 tmpBytes = new byte[size];
             }
+            random.nextBytes(tmpBytes);
             System.arraycopy(imageBytes, 0, tmpBytes, 0, imageBytes.length);
             imageBytes = tmpBytes;
             currentSize = imageBytes.length;

@@ -15,7 +15,6 @@
         <div class="c_left">
             <ul type="none" class="c_left_nav">
                 <li :class="divId=='createImage'?'li_selected':'li_nonselected'"><a @click="changeDiv('createImage')">图片生成</a></li>
-                <li :class="divId=='pdfConvert'?'li_selected':'li_nonselected'"><a @click="changeDiv('pdfConvert')">pdf转换</a></li>
                 <li :class="divId=='ipRegion'?'li_selected':'li_nonselected'"><a @click="changeDiv('ipRegion')">ip归属地</a></li>
                 <li :class="divId=='genUuid'?'li_selected':'li_nonselected'"><a @click="changeDiv('genUuid')">uuid生成</a></li>
                 <li :class="divId=='md5'?'li_selected':'li_nonselected'"><a @click="changeDiv('md5')">md5加密</a></li>
@@ -78,37 +77,36 @@
                 <span style="color: red;background-color: black">{{nowMillSeconds}}</span>
                 <hr>
                 <table style="margin: 0 auto;">
-                <tr>
-                    <td><label>时间</label></td>
-                    <td> <input type="text" v-model="inputDate"></td>
-                    <td><button @click="date2Mills()">转换</button></td>
-                    <td> <input type="text" v-model="inputDateMills"></td>
-                    <td><label>毫秒</label></td>
-                </tr>
-                <tr>
-                    <td><label>时间</label></td>
-                    <td> <input type="text" v-model="inputDate"></td>
-                    <td><button @click="date2Seconds()">转换</button></td>
-                    <td> <input type="text" v-model="inputDateSeconds"></td>
-                    <td><label>秒</label></td>
-                </tr>
-                <tr>
-                    <td> <label>时间戳(秒)</label></td>
-                    <td><input type="text" v-model="inputSeconds"></td>
-                    <td> <button @click="seconds2Date()">转换</button></td>
-                    <td><input type="text" v-model="inputSecondsDate"></td>
-                </tr>
-                <tr>
-                    <td> <label>时间戳(毫秒)</label></td>
-                    <td><input type="text" v-model="inputMills"></td>
-                    <td> <button @click="mills2Date()">转换</button></td>
-                    <td><input type="text" v-model="inputMillsDate"></td>
-                </tr>
+                    <tr>
+                        <td><label>时间</label></td>
+                        <td> <input type="text" v-model="inputDate"></td>
+                        <td><button @click="date2Mills()">转换</button></td>
+                        <td> <input type="text" v-model="inputDateMills"></td>
+                        <td><label>毫秒</label></td>
+                    </tr>
+                    <tr>
+                        <td><label>时间</label></td>
+                        <td> <input type="text" v-model="inputDate"></td>
+                        <td><button @click="date2Seconds()">转换</button></td>
+                        <td> <input type="text" v-model="inputDateSeconds"></td>
+                        <td><label>秒</label></td>
+                    </tr>
+                    <tr>
+                        <td> <label>时间戳(秒)</label></td>
+                        <td><input type="text" v-model="inputSeconds"></td>
+                        <td> <button @click="seconds2Date()">转换</button></td>
+                        <td><input type="text" v-model="inputSecondsDate"></td>
+                    </tr>
+                    <tr>
+                        <td> <label>时间戳(毫秒)</label></td>
+                        <td><input type="text" v-model="inputMills"></td>
+                        <td> <button @click="mills2Date()">转换</button></td>
+                        <td><input type="text" v-model="inputMillsDate"></td>
+                    </tr>
                 </table>
             </div>
-            <div id="pdfConvert" v-if="divId=='pdfConvert'">
-            </div>
         </div>
+
     </div>
 
 </div>
@@ -152,6 +150,7 @@
             changeDiv(divId) {
                 this.divId = divId;
             },
+
             doGenUuid(){
                 axios.get('http://172.16.1.72:8555/tool/genUuids?uuidCount='+this.uuidCount)
                     .then( (response) => {
@@ -184,10 +183,10 @@
                     });
             },
             doViewImage(){
-                this.createImageUri = "http://172.16.1.72:8555/tool/createImage?width="+this.imageWidth+"&height="+this.imageHeight+"&MB="+this.imageMB+"&imageType="+this.imageType;
+                this.createImageUri = "http://172.16.1.72:8555/tool/createImage?width="+this.imageWidth+"&height="+this.imageHeight+"&MB="+this.imageMB+"&imageType="+this.imageType+"&timestamp="+new Date().getTime();
             },
             doCreateImage(){
-                this.createImageUri = "http://172.16.1.72:8555/tool/createImage?width="+this.imageWidth+"&height="+this.imageHeight+"&MB="+this.imageMB+"&imageType="+this.imageType;
+                this.createImageUri = "http://172.16.1.72:8555/tool/createImage?width="+this.imageWidth+"&height="+this.imageHeight+"&MB="+this.imageMB+"&imageType="+this.imageType+"&timestamp="+new Date().getTime();
                 window.open(this.createImageUri);
             },
             formatDate(date){
@@ -202,7 +201,7 @@
                 return formattedDate
             },
             parseDate(dateStr){
-                 return Date.parse(new Date(dateStr).toString());
+                return Date.parse(new Date(dateStr).toString());
             },
             date2Mills(){
                 this.inputDateMills = this.parseDate(this.inputDate);
@@ -288,6 +287,15 @@
         height: 35px;
         font-size: 18px;
     }
+    .input_bttn{
+        margin-left: 15px;
+        height: 35px;
+        font-size: 18px;
+    }
+    .bttn_selected{
+        background-color: red;
+        border: 1px solid;
+    }
     .input_result{
         margin-top: 20px;
     }
@@ -302,6 +310,25 @@
         background-color: white;
         border: 2px solid;
         font-size: 16px
+    }
+    .http_mock_table{
+        width: 800px;
+        margin: 20px auto;
+        border-collapse: collapse;
+    }
+
+    .http_mock_table th {
+        background: whitesmoke;
+        color: black;
+        font-size: 16px;
+        border: 1px solid black;
+        padding: 5px;
+    }
+    .http_mock_table tr td {
+        text-align: center;
+        font-size: 16px;
+        padding: 5px;
+        border: 1px solid black;
     }
 </style>
 </html>

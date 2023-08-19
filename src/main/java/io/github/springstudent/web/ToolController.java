@@ -6,11 +6,7 @@ import cn.hutool.json.JSONUtil;
 import io.github.springstudent.bean.ResponseEntity;
 import io.github.springstudent.util.ImageUtil;
 import io.github.springstudent.util.Ip2RegionUtil;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
@@ -44,7 +40,7 @@ public class ToolController {
             OutputStream outputStream = response.getOutputStream();
             response.addHeader("Content-Disposition", "attachment;filename=" + IdUtil.fastSimpleUUID() + "." + imageType);
             response.addHeader("Content-Type", "image/" + imageType);
-            response.getOutputStream().write(bytes);
+            outputStream.write(bytes);
             outputStream.flush();
             outputStream.close();
         } catch (Exception e) {
