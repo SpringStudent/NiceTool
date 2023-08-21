@@ -14,40 +14,52 @@
     <div class="container">
         <div class="c_left">
             <ul type="none" class="c_left_nav">
-                <li :class="divId=='createImage'?'li_selected':'li_nonselected'"><a @click="changeDiv('createImage')">图片生成</a></li>
-                <li :class="divId=='ipRegion'?'li_selected':'li_nonselected'"><a @click="changeDiv('ipRegion')">ip归属地</a></li>
-                <li :class="divId=='genUuid'?'li_selected':'li_nonselected'"><a @click="changeDiv('genUuid')">uuid生成</a></li>
+                <li :class="divId=='createImage'?'li_selected':'li_nonselected'"><a @click="changeDiv('createImage')">图片生成</a>
+                </li>
+                <li :class="divId=='ipRegion'?'li_selected':'li_nonselected'"><a
+                        @click="changeDiv('ipRegion')">ip归属地</a></li>
+                <li :class="divId=='genUuid'?'li_selected':'li_nonselected'"><a @click="changeDiv('genUuid')">uuid生成</a>
+                </li>
                 <li :class="divId=='md5'?'li_selected':'li_nonselected'"><a @click="changeDiv('md5')">md5加密</a></li>
-                <li :class="divId=='timeConvert'?'li_selected':'li_nonselected'"><a @click="changeDiv('timeConvert')">时间转换</a></li>
+                <li :class="divId=='timeConvert'?'li_selected':'li_nonselected'"><a @click="changeDiv('timeConvert')">时间转换</a>
+                </li>
             </ul>
         </div>
         <div class="c_right">
             <div id="genUuid" v-if="divId=='genUuid'">
-                <input type="number" maxlength="3" class="text_input" v-model="uuidCount" placeholder="生成uuid的个数"  min="1" max="100"/>
+                <input type="number" maxlength="3" class="text_input" v-model="uuidCount" placeholder="生成uuid的个数"
+                       min="1" max="100"/>
                 <button @click="doGenUuid()" class="bttn">生成</button>
                 <div style="margin-top: 15px" v-show="uuids!==undefined && uuids.length > 0">
                     <label style="font-size: 20px;font-weight: lighter">已为您生成了{{uuids.length}}个uuid:</label>
                 </div>
-                <div class="input_result" style="border: 1px solid #dee2e6;color: red;font-size: 18px" v-show="uuids!==undefined && uuids.length > 0">
+                <div class="input_result" style="border: 1px solid #dee2e6;color: red;font-size: 18px"
+                     v-show="uuids!==undefined && uuids.length > 0">
                     <template v-for="uuid in uuids">
                         {{uuid}}<br>
                     </template>
                 </div>
             </div>
             <div id="md5" v-if="divId=='md5'">
-                <input type="text" maxlength="100" class="text_input" v-model="md5Text" placeholder="输入加密字符串"/>
+                <input type="text" maxlength="30" class="text_input" v-model="md5Text" placeholder="输入加密字符串"/>
                 <button @click="doMd5()" class="bttn">加密</button>
-                <div class="input_result" v-show="md5Result!=''">
+                <div class="input_result" v-if="md5Result!=''">
                     <label style="font-size: 20px;font-weight: lighter">加密结果:</label>
                     <span>{{md5Result}}</span>
+                </div>
+                <div class="input_result" v-if="md5Error!=''">
+                    <span>{{md5Error}}</span>
                 </div>
             </div>
             <div id="ipRegion" v-if="divId=='ipRegion'">
                 <input type="text" maxlength="100" class="text_input" v-model="ipText" placeholder="输入查询ip地址"/>
                 <button @click="doIpRegion()" class="bttn">查询</button>
-                <div class="input_result" v-show="ipRegionResult!=''">
+                <div class="input_result" v-if="ipRegionResult!=''">
                     <label style="font-size: 20px;font-weight: lighter">ip归属地:</label>
                     <span>{{ipRegionResult}}</span>
+                </div>
+                <div class="input_result" v-if="ipRegionError!=''">
+                    <span>{{ipRegionError}}</span>
                 </div>
             </div>
             <div id="createImage" v-if="divId=='createImage'">
@@ -58,19 +70,22 @@
 
                 <div style="position: relative;display: inline-block">
                     <label style="padding-left: 25px;padding-right: 5px;font-size: 20px">长度:</label>
-                    <input type="number" maxlength="4" step="100" class="number_input" v-model="imageWidth" placeholder="图片长度" min="100" max="2000" style="position: relative;display: inline-block">
+                    <input type="number" maxlength="4" step="100" class="number_input" v-model="imageWidth"
+                           placeholder="图片长度" min="100" max="2000" style="position: relative;display: inline-block">
                     <span class="input_tipspan" v-show="imageWidthError!=''">{{imageWidthError}}</span>
                 </div>
 
                 <div style="position: relative;display: inline-block">
                     <label style="padding-left: 25px;padding-right: 5px;font-size: 20px">高度:</label>
-                    <input type="number" maxlength="4" step="100" class="number_input" v-model="imageHeight" placeholder="图片高度" min="100" max="2000"/>
+                    <input type="number" maxlength="4" step="100" class="number_input" v-model="imageHeight"
+                           placeholder="图片高度" min="100" max="2000"/>
                     <span class="input_tipspan" v-show="imageHeightError!=''">{{imageHeightError}}</span>
                 </div>
 
                 <div style="position: relative;display: inline-block">
                     <label style="padding-left: 25px;padding-right: 5px;font-size: 20px">大小:</label>
-                    <input type="number" maxlength="3" class="number_input" v-model="imageMB" placeholder="图片大小MB" min="1" max="200"/>
+                    <input type="number" maxlength="3" class="number_input" v-model="imageMB" placeholder="图片大小MB"
+                           min="1" max="200"/>
                     <span class="input_tipspan" v-show="imageMBError!=''">{{imageMBError}}</span>
                 </div>
 
@@ -82,8 +97,11 @@
                 </select>
                 <button @click="doViewImage()" class="bttn">预览</button>
                 <button @click="doCreateImage()" class="bttn">下载</button>
-                <div class="input_result" v-show="createImageUri!=''">
-                    <img :src="createImageUri" style="border-color: red;border: 2px solid red"/>
+                <div class="input_result" v-if="createImageResult!=''">
+                    <img :src="createImageResult" style="border-color: red;border: 2px solid red"/>
+                </div>
+                <div class="input_result" v-if="createImageError!=''">
+                    <span>{{createImageError}}</span>
                 </div>
             </div>
             <div id="timeConvert" v-if="divId=='timeConvert'">
@@ -95,28 +113,36 @@
                 <table style="margin: 0 auto;">
                     <tr>
                         <td><label>时间</label></td>
-                        <td> <input type="text" v-model="inputDate"></td>
-                        <td><button @click="date2Mills()">转换</button></td>
-                        <td> <input type="text" v-model="inputDateMills"></td>
+                        <td><input type="text" v-model="inputDate"></td>
+                        <td>
+                            <button @click="date2Mills()">转换</button>
+                        </td>
+                        <td><input type="text" v-model="inputDateMills"></td>
                         <td><label>毫秒</label></td>
                     </tr>
                     <tr>
                         <td><label>时间</label></td>
-                        <td> <input type="text" v-model="inputDate"></td>
-                        <td><button @click="date2Seconds()">转换</button></td>
-                        <td> <input type="text" v-model="inputDateSeconds"></td>
+                        <td><input type="text" v-model="inputDate"></td>
+                        <td>
+                            <button @click="date2Seconds()">转换</button>
+                        </td>
+                        <td><input type="text" v-model="inputDateSeconds"></td>
                         <td><label>秒</label></td>
                     </tr>
                     <tr>
-                        <td> <label>时间戳(秒)</label></td>
+                        <td><label>时间戳(秒)</label></td>
                         <td><input type="text" v-model="inputSeconds"></td>
-                        <td> <button @click="seconds2Date()">转换</button></td>
+                        <td>
+                            <button @click="seconds2Date()">转换</button>
+                        </td>
                         <td><input type="text" v-model="inputSecondsDate"></td>
                     </tr>
                     <tr>
-                        <td> <label>时间戳(毫秒)</label></td>
+                        <td><label>时间戳(毫秒)</label></td>
                         <td><input type="text" v-model="inputMills"></td>
-                        <td> <button @click="mills2Date()">转换</button></td>
+                        <td>
+                            <button @click="mills2Date()">转换</button>
+                        </td>
                         <td><input type="text" v-model="inputMillsDate"></td>
                     </tr>
                 </table>
@@ -128,142 +154,238 @@
 </div>
 </body>
 <script type="text/javascript">
-    var vm =new Vue({
+    var vm = new Vue({
         el: "#app",
         data: {
             divId: '',
-            md5Text:'',
-            ipText:'',
-            imageWidth:'',
-            imageWidthError:'',
-            imageHeight:'',
-            imageHeightError:'',
-            imageMB:'',
-            imageMBError:'',
-            imageType:'jpg',
-            uuidCount:'',
-            uuids:[],
-            md5Result:'',
-            createImageUri:'',
-            ipRegionResult:'',
-            nowSeconds:'',
-            nowMillSeconds:'',
-            inputDate:'',
-            inputDateMills:'',
-            inputDateSeconds:'',
-            inputSeconds:'',
-            inputMills:'',
-            inputSecondsDate:'',
-            inputMillsDate:'',
-            imageColor:'#FFFFFF'
+            md5Text: '',
+            ipText: '',
+            imageWidth: '680',
+            imageWidthError: '',
+            imageHeight: '1000',
+            imageHeightError: '',
+            imageMB: '20',
+            imageMBError: '',
+            imageType: 'jpg',
+            uuidCount: '',
+            uuids: [],
+            md5Result: '',
+            md5Error:'',
+            createImageUri: '',
+            ipRegionResult: '',
+            ipRegionError: '',
+            nowSeconds: '',
+            nowMillSeconds: '',
+            inputDate: '',
+            inputDateMills: '',
+            inputDateSeconds: '',
+            inputSeconds: '',
+            inputMills: '',
+            inputSecondsDate: '',
+            inputMillsDate: '',
+            imageColor: '#FFFFFF',
+            createImageResult:'',
+            createImageError:''
         },
 
         mounted() {
             var current = new Date();
             this.nowMillSeconds = current.getTime();
-            this.nowSeconds = Math.round(current.getTime()/1000);
+            this.nowSeconds = Math.round(current.getTime() / 1000);
             this.inputDate = this.formatDate(current);
             this.inputMills = current.getTime();
-            this.inputSeconds = Math.round(current.getTime()/1000);
+            this.inputSeconds = Math.round(current.getTime() / 1000);
             this.changeDiv('createImage');
         },
         methods: {
+            isIp(ip) {
+                ip_arr = ip.split('.');
+                if(ip_arr.length != 4){
+                    return false;
+                }
+                for (i = 0; i < ip_arr.length; i++) {
+                    if(ip_arr[i] < 0 || ip_arr[i] > 255){
+                        return false;
+                    }
+                }
+                return true;
+            },
             changeDiv(divId) {
                 this.divId = divId;
             },
-            doGenUuid(){
-                if(this.uuidCount==''||this.uuidCount>100){
+            doGenUuid() {
+                if (this.uuidCount == '' || this.uuidCount > 100) {
                     this.uuidCount = 100;
                 }
-                axios.get('http://172.16.1.72:8555/tool/genUuids?uuidCount='+this.uuidCount)
-                    .then( (response) => {
-                        this.uuids=[];
+                axios.get('http://172.16.1.72:8555/tool/genUuids?uuidCount=' + this.uuidCount)
+                    .then((response) => {
+                        this.uuids = [];
                         var resUuids = response.data.result;
-                        for(var i = 0; i < resUuids.length; i++) {
+                        for (var i = 0; i < resUuids.length; i++) {
                             this.uuids.push(resUuids[i]);
                         }
                     })
-                    .catch( (error) => {
+                    .catch((error) => {
                         console.log(error);
                     });
             },
-            doMd5(){
-                axios.get('http://172.16.1.72:8555/tool/md5?text='+this.md5Text)
-                    .then( (response) => {
+            doMd5() {
+                this.md5Result = '';
+                this.md5Error = '';
+                if(this.md5Text==''){
+                    this.md5Error = '加密字符串不能为空';
+                    return;
+                }
+                axios.get('http://172.16.1.72:8555/tool/md5?text=' + this.md5Text)
+                    .then((response) => {
                         this.md5Result = response.data.result;
                     })
-                    .catch( (error) => {
+                    .catch((error) => {
                         console.log(error);
                     });
             },
-            doIpRegion(){
-                axios.get('http://172.16.1.72:8555/tool/ipRegion?ip='+this.ipText)
-                    .then( (response) => {
-                        this.ipRegionResult = response.data.result;
+            doIpRegion() {
+                this.ipRegionResult = '';
+                this.ipRegionError = '';
+                if(this.ipText==''){
+                    this.ipRegionError = '请输入ip地址';
+                    return;
+                }else{
+                    if(!this.isIp(this.ipText)){
+                        this.ipRegionError = 'ip地址不合法';
+                        return;
+                    }
+                }
+                axios.get('http://172.16.1.72:8555/tool/ipRegion?ip=' + this.ipText)
+                    .then((response) => {
+                        if(response.status==200){
+                            if(response.data.code==200){
+                                this.ipRegionResult = response.data.result;
+                            }else{
+                                this.ipRegionError = response.data.msg;
+                            }
+                        }
                     })
-                    .catch( (error) => {
-                        console.log(error);
+                    .catch((error) => {
+                        this.ipRegionError = error;
                     });
             },
-            validateImageParam(){
-                this.imageWidthError ='';
-                this.imageHeightError='';
+            validateImageParam() {
+                this.imageWidthError = '';
+                this.imageHeightError = '';
                 this.imageMBError = '';
                 var result = true;
-                if(this.imageWidth==''){
+                if (this.imageWidth == '') {
                     this.imageWidthError = '图片长度不能为空';
                     result = false;
-                }else{
-                    if(this.imageWidth<0){
+                } else {
+                    if (this.imageWidth < 0) {
                         this.imageWidthError = '图片长度不小于0';
                         result = false;
                     }
-                    if(this.imageWidth>2000){
+                    if (this.imageWidth > 2000) {
                         this.imageWidthError = '图片长度不能超过2000';
                         result = false;
 
                     }
                 }
-                if(this.imageHeight==''){
+                if (this.imageHeight == '') {
                     this.imageHeightError = '图片宽度不能为空';
                     result = false;
-                }else{
-                    if(this.imageHeight<0){
+                } else {
+                    if (this.imageHeight < 0) {
                         this.imageHeightError = '图片宽度不能小于0';
                         result = false;
                     }
-                    if(this.imageHeight>2000){
+                    if (this.imageHeight > 2000) {
                         this.imageHeightError = '图片宽度不能超过2000';
                         result = false;
                     }
                 }
-                if(this.imageMB==''){
+                if (this.imageMB == '') {
                     this.imageMBError = '图片大小不能为空';
                     result = false;
-                }else{
-                    if(this.imageMB<0){
+                } else {
+                    if (this.imageMB < 0) {
                         this.imageMBError = '图片大小不能小于0';
                         result = false;
                     }
-                    if(this.imageMB>200){
+                    if (this.imageMB > 200) {
                         this.imageMBError = '图片大小不能超过200MB';
                         result = false;
                     }
                 }
                 return result;
             },
-            doViewImage(){
-                if(this.validateImageParam()){
-                    this.createImageUri = "http://172.16.1.72:8555/tool/createImage?width="+this.imageWidth+"&height="+this.imageHeight+"&MB="+this.imageMB+"&imageType="+this.imageType+"&imageColor="+this.imageColor.substr(1)+"&timestamp="+new Date().getTime();
+            doViewImage() {
+                if (this.validateImageParam()) {
+                    this.createImageResult = '';
+                    this.createImageError = '';
+                    axios.get("http://172.16.1.72:8555/tool/createImage?width=" + this.imageWidth + "&height=" + this.imageHeight + "&MB=" + this.imageMB + "&imageType=" + this.imageType + "&imageColor=" + this.imageColor.substr(1) + "&timestamp=" + new Date().getTime(),{responseType:'blob'})
+                        .then((res) => {
+                            if(res.status==200) {
+                                var responseType = res.headers['content-type'];
+                                if (responseType.startsWith("application/json")) {
+                                    const reader = new FileReader();
+                                    reader.readAsText(res.data, 'utf-8');
+                                    reader.onload = () => {
+                                        this.createImageError = JSON.parse(reader.result).msg;
+                                    }
+                                } else {
+                                    const blob = new Blob([res.data], {type: responseType});
+                                    const URL = window.URL || window.webkitURL;
+                                    this.createImageResult = URL.createObjectURL(blob);
+                                }
+                            }
+                        })
+                        .catch((error) => {
+                            this.createImageError = error;
+                        });
                 }
             },
-            doCreateImage(){
-                if(this.validateImageParam()) {
-                    this.createImageUri = "http://172.16.1.72:8555/tool/createImage?width=" + this.imageWidth + "&height=" + this.imageHeight + "&MB=" + this.imageMB + "&imageType=" + this.imageType + "&imageColor=" + this.imageColor.substr(1) + "&timestamp=" + new Date().getTime();
-                    window.open(this.createImageUri);
+            doCreateImage() {
+                if (this.validateImageParam()) {
+                    this.createImageResult = '';
+                    this.createImageError = '';
+                    axios.get("http://172.16.1.72:8555/tool/createImage?width=" + this.imageWidth + "&height=" + this.imageHeight + "&MB=" + this.imageMB + "&imageType=" + this.imageType + "&imageColor=" + this.imageColor.substr(1) + "&timestamp=" + new Date().getTime(),{responseType:'blob'})
+                        .then((res) => {
+                            if(res.status==200) {
+                                var responseType = res.headers['content-type'];
+                                if (responseType.startsWith("application/json")) {
+                                    const reader = new FileReader();
+                                    reader.readAsText(res.data, 'utf-8');
+                                    reader.onload = () => {
+                                        this.createImageError = JSON.parse(reader.result).msg;
+                                    }
+                                } else {
+                                    var filename = "";
+                                    var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+                                    var matches = filenameRegex.exec(res.headers['content-disposition']);
+                                    if (matches != null && matches[1]) {
+                                        filename = matches[1].replace(/['"]/g, '');
+                                    }
+                                    const blob = new Blob([res.data], {type: responseType});
+                                    if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+                                        window.navigator.msSaveOrOpenBlob(blob, filename)
+                                    } else {
+                                        const url = URL.createObjectURL(blob);
+                                        const link = document.createElement('a');
+                                        link.href = url;
+                                        link.download = filename;
+                                        document.body.appendChild(link);
+                                        link.click();
+                                        document.body.removeChild(link);
+                                        URL.revokeObjectURL(url);
+                                    }
+                                }
+                            }
+                        })
+                        .catch((error) => {
+                            this.createImageError = error;
+                        });
                 }
             },
-            formatDate(date){
+            formatDate(date) {
                 console.log(date)
                 const year = date.getFullYear();
                 const month = (date.getMonth() + 1).toString().padStart(2, '0');
@@ -274,20 +396,20 @@
                 const formattedDate = `${year}-${month}-${day} ${hour}:${minute}:${second}`;
                 return formattedDate
             },
-            parseDate(dateStr){
+            parseDate(dateStr) {
                 return Date.parse(new Date(dateStr).toString());
             },
-            date2Mills(){
+            date2Mills() {
                 this.inputDateMills = this.parseDate(this.inputDate);
             },
-            date2Seconds(){
-                this.inputDateSeconds = Math.round(this.parseDate(this.inputDate)/1000);
+            date2Seconds() {
+                this.inputDateSeconds = Math.round(this.parseDate(this.inputDate) / 1000);
             },
-            seconds2Date(){
-                this.inputSecondsDate = this.formatDate(new Date(this.inputSeconds*1000));
+            seconds2Date() {
+                this.inputSecondsDate = this.formatDate(new Date(this.inputSeconds * 1000));
             },
-            mills2Date(){
-                this.inputMillsDate = this.formatDate(new Date(this.inputMills*1));
+            mills2Date() {
+                this.inputMillsDate = this.formatDate(new Date(this.inputMills * 1));
             },
         }
     });
@@ -330,10 +452,9 @@
         margin-left: 48px;
     }
 
-    .li_selected{
+    .li_selected {
         background-color: #d2c9c9;
     }
-
     .c_left_nav li a:hover {
         color: #9e9edd;
         text-decoration: none;
@@ -344,49 +465,57 @@
         text-align: center;
         width: 80%;
     }
-    .text_input{
+
+    .text_input {
         width: 300px;
         height: 30px;
         font-size: 16px;
         background-color: white;
     }
-    .number_input{
+
+    .number_input {
         width: 160px;
         height: 30px;
         font-size: 16px;
         background-color: white;
     }
 
-    .bttn{
+    .bttn {
         margin-left: 15px;
         height: 35px;
         font-size: 18px;
     }
-    .input_bttn{
+
+    .input_bttn {
         margin-left: 15px;
         height: 35px;
         font-size: 18px;
     }
-    .bttn_selected{
+
+    .bttn_selected {
         background-color: red;
         border: 1px solid;
     }
-    .input_result{
+
+    .input_result {
         margin-top: 20px;
     }
-    .input_result span{
+
+    .input_result span {
         font-size: 23px;
         color: red;
         font-weight: bold;
     }
-    .image_select{
+
+    .image_select {
         width: 140px;
         height: 35px;
         background-color: white;
         border: 2px solid;
         font-size: 16px
     }
-    .input_tipspan{
+
+    .input_tipspan {
         position: absolute;
         top: 40px;
         font-size: 10px;

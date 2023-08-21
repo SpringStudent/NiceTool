@@ -1,4 +1,4 @@
-package io.github.springstudent.util;
+package io.github.springstudent.filter;
 
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
