@@ -154,6 +154,7 @@
 </div>
 </body>
 <script type="text/javascript">
+    const server_url = "http://172.16.1.72:8555";
     var vm = new Vue({
         el: "#app",
         data: {
@@ -217,7 +218,7 @@
                 if (this.uuidCount == '' || this.uuidCount > 100) {
                     this.uuidCount = 100;
                 }
-                axios.get('http://172.16.1.72:8555/tool/genUuids?uuidCount=' + this.uuidCount)
+                axios.get(server_url+'/tool/genUuids?uuidCount=' + this.uuidCount)
                     .then((response) => {
                         this.uuids = [];
                         var resUuids = response.data.result;
@@ -236,7 +237,7 @@
                     this.md5Error = '加密字符串不能为空';
                     return;
                 }
-                axios.get('http://172.16.1.72:8555/tool/md5?text=' + this.md5Text)
+                axios.get(server_url+'/tool/md5?text=' + this.md5Text)
                     .then((response) => {
                         this.md5Result = response.data.result;
                     })
@@ -256,7 +257,7 @@
                         return;
                     }
                 }
-                axios.get('http://172.16.1.72:8555/tool/ipRegion?ip=' + this.ipText)
+                axios.get(server_url+'/tool/ipRegion?ip=' + this.ipText)
                     .then((response) => {
                         if(response.status==200){
                             if(response.data.code==200){
@@ -321,7 +322,7 @@
                 if (this.validateImageParam()) {
                     this.createImageResult = '';
                     this.createImageError = '';
-                    axios.get("http://172.16.1.72:8555/tool/createImage?width=" + this.imageWidth + "&height=" + this.imageHeight + "&MB=" + this.imageMB + "&imageType=" + this.imageType + "&imageColor=" + this.imageColor.substr(1) + "&timestamp=" + new Date().getTime(),{responseType:'blob'})
+                    axios.get(server_url+"/tool/createImage?width=" + this.imageWidth + "&height=" + this.imageHeight + "&MB=" + this.imageMB + "&imageType=" + this.imageType + "&imageColor=" + this.imageColor.substr(1) + "&timestamp=" + new Date().getTime(),{responseType:'blob'})
                         .then((res) => {
                             if(res.status==200) {
                                 var responseType = res.headers['content-type'];
@@ -347,7 +348,7 @@
                 if (this.validateImageParam()) {
                     this.createImageResult = '';
                     this.createImageError = '';
-                    axios.get("http://172.16.1.72:8555/tool/createImage?width=" + this.imageWidth + "&height=" + this.imageHeight + "&MB=" + this.imageMB + "&imageType=" + this.imageType + "&imageColor=" + this.imageColor.substr(1) + "&timestamp=" + new Date().getTime(),{responseType:'blob'})
+                    axios.get(server_url+"/tool/createImage?width=" + this.imageWidth + "&height=" + this.imageHeight + "&MB=" + this.imageMB + "&imageType=" + this.imageType + "&imageColor=" + this.imageColor.substr(1) + "&timestamp=" + new Date().getTime(),{responseType:'blob'})
                         .then((res) => {
                             if(res.status==200) {
                                 var responseType = res.headers['content-type'];
