@@ -1,5 +1,7 @@
 package io.github.springstudent.util;
 
+import cn.hutool.core.io.IoUtil;
+import cn.hutool.core.io.resource.ResourceUtil;
 import org.lionsoul.ip2region.DbConfig;
 import org.lionsoul.ip2region.DbSearcher;
 import org.lionsoul.ip2region.Util;
@@ -22,12 +24,7 @@ public class Ip2RegionUtil {
 
     static {
         try {
-            String dbPath = Ip2RegionUtil.class.getResource("/ip2region.db").getPath();
-            File file = new File(dbPath);
-            if (!file.exists()) {
-                logger.error("Error: Invalid ip2region.db file");
-            }
-            searcher = new DbSearcher(new DbConfig(), dbPath);
+            searcher = new DbSearcher(new DbConfig(), IoUtil.readBytes(ResourceUtil.getStream("ip2region.db")));
         } catch (Exception e) {
             logger.error("初始化searcher失败", e);
         }
@@ -44,7 +41,7 @@ public class Ip2RegionUtil {
         String result = UNKNOWN;
         try {
             if (Util.isIpAddress(ip)) {
-                String region = searcher.btreeSearch(ip).getRegion();
+                String region = searcher.memorySearch(ip).getRegion();
                 if (region.indexOf("|") != -1) {
                     String[] regionArr = region.split("\\|");
                     if (regionArr.length == 5) {
@@ -66,5 +63,4 @@ public class Ip2RegionUtil {
         }
         return result;
     }
-
 }
