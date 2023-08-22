@@ -1,4 +1,5 @@
 package io.github.springstudent.bean;
+
 import cn.hutool.json.JSONUtil;
 import io.github.springstudent.util.HttpUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+
 /**
  * @author zhouning
  * @date 2023/08/21 10:31
@@ -30,6 +32,7 @@ public class InterfaceLimitAspect {
 
     @Resource
     private HttpServletResponse response;
+
     /**
      * 层切点
      */
@@ -39,6 +42,8 @@ public class InterfaceLimitAspect {
 
     @Around("controllerAspect(interfaceLimit)")
     public Object doAround(ProceedingJoinPoint pjp, InterfaceLimit interfaceLimit) throws Throwable {
+        long time = interfaceLimit.time();
+        long value = interfaceLimit.value();
         // 获得request对象
         RequestAttributes ra = RequestContextHolder.getRequestAttributes();
         ServletRequestAttributes sra = (ServletRequestAttributes) ra;
@@ -46,13 +51,13 @@ public class InterfaceLimitAspect {
         String ip = HttpUtil.getIpAddr(request);
         ExpiringMap<String, Integer> uc = book.getOrDefault(request.getRequestURI(), ExpiringMap.builder().variableExpiration().build());
         Integer uCount = uc.getOrDefault(ip, 0);
-        if (uCount >= interfaceLimit.value()) {
-            log.error("接口拦截：{} 请求超过限制频率【{}次/{}ms】,IP为{}", request.getRequestURI(), interfaceLimit.value(), interfaceLimit.time(),ip);
+        if (uCount >= value) {
+            log.error("接口拦截：{} 请求超过限制频率【{}次/{}ms】,IP为{}", request.getRequestURI(), value, time, ip);
             response.setContentType("application/json;charset=UTF-8");
             response.getWriter().write(JSONUtil.toJsonStr(ResponseEntity.fail("请求频次超过限制", 500)));
             return null;
         } else if (uCount == 0) {
-            uc.put(ip, uCount + 1, ExpirationPolicy.CREATED, interfaceLimit.time(), TimeUnit.MILLISECONDS);
+            uc.put(ip, uCount + 1, ExpirationPolicy.CREATED, time, TimeUnit.MILLISECONDS);
         } else {
             uc.put(ip, uCount + 1);
         }
