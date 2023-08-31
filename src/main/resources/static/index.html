@@ -31,7 +31,7 @@
         <div class="c_right">
             <div id="jsonPretty" v-if="divId=='jsonPretty'" style="display: flex;justify-content: center;">
                 <div class="json_pretty_input">
-                    <textarea placeholder="请输入json数据" v-model="jsonInput" @blur="jsonPretty" @keyup="jsonPretty" @change="jsonPretty" style="width:95%;height:96%;padding:2%;resize: none;outline:none;border: 2px solid #eee"></textarea>
+                    <textarea placeholder="请输入json数据" v-model="jsonInput" @blur="jsonPretty" @keyup="jsonPretty" @change="jsonPretty" style="font-size:15px;width:95%;height:98%;padding:1%;resize: none;outline:none;border: 2px solid #eee"></textarea>
                 </div>
                 <div class="json_pretty_output">
                     <vue-json-pretty :data="jsonOutput"  :show-line="false" style ="padding: 2%"></vue-json-pretty>
@@ -550,13 +550,13 @@
         left: 80px;
     }
     .json_pretty_input{
-        width: 38%;
-        height: 600px;
+        width: 45%;
+        height: 680px;
     }
     .json_pretty_output{
         border: 2px solid #eee;
-        width: 38%;
-        height: 600px;
+        width: 45%;
+        height: 680px;
     }
 </style>
 </html>
