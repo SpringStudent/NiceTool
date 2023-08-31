@@ -5,6 +5,8 @@
     <title></title>
     <script type="text/javascript" src="./js/vue.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="./js/vue-json-pretty.min.js"></script>
+    <link href="./css/styles.min.css" rel="stylesheet">
 </head>
 <body>
 <div id="app">
@@ -14,6 +16,7 @@
     <div class="container">
         <div class="c_left">
             <ul type="none" class="c_left_nav">
+                <li :class="divId=='jsonPretty'?'li_selected':'li_nonselected'"><a @click="changeDiv('jsonPretty')">json验证</a>
                 <li :class="divId=='createImage'?'li_selected':'li_nonselected'"><a @click="changeDiv('createImage')">图片生成</a>
                 </li>
                 <li :class="divId=='ipRegion'?'li_selected':'li_nonselected'"><a
@@ -26,6 +29,14 @@
             </ul>
         </div>
         <div class="c_right">
+            <div id="jsonPretty" v-if="divId=='jsonPretty'" style="display: flex;justify-content: center;">
+                <div class="json_pretty_input">
+                    <textarea placeholder="请输入json数据" v-model="jsonInput" @blur="jsonPretty" @keyup="jsonPretty" @change="jsonPretty" style="width:95%;height:96%;padding:2%;resize: none;outline:none;border: 2px solid #eee"></textarea>
+                </div>
+                <div class="json_pretty_output">
+                    <vue-json-pretty :data="jsonOutput"  :show-line="false" style ="padding: 2%"></vue-json-pretty>
+                </div>
+            </div>
             <div id="genUuid" v-if="divId=='genUuid'">
                 <input type="number" maxlength="3" class="text_input" v-model="uuidCount" placeholder="生成uuid的个数"
                        min="1" max="100"/>
@@ -153,7 +164,7 @@
 
 </div>
 </body>
-<script type="text/javascript">
+<script type="module">
     const server_url = "http://172.16.2.121:8555";
     var vm = new Vue({
         el: "#app",
@@ -171,7 +182,7 @@
             uuidCount: '',
             uuids: [],
             md5Result: '',
-            md5Error:'',
+            md5Error: '',
             createImageUri: '',
             ipRegionResult: '',
             ipRegionError: '',
@@ -185,10 +196,14 @@
             inputSecondsDate: '',
             inputMillsDate: '',
             imageColor: '#FFFFFF',
-            createImageResult:'',
-            createImageError:''
+            createImageResult: '',
+            createImageError: '',
+            jsonInput:'',
+            jsonOutput: {},
         },
-
+        components: {
+            VueJsonPretty: VueJsonPretty.default
+        },
         mounted() {
             var current = new Date();
             this.nowMillSeconds = current.getTime();
@@ -196,20 +211,30 @@
             this.inputDate = this.formatDate(current);
             this.inputMills = current.getTime();
             this.inputSeconds = Math.round(current.getTime() / 1000);
-            this.changeDiv('createImage');
+            this.changeDiv('jsonPretty');
         },
         methods: {
             isIp(ip) {
                 ip_arr = ip.split('.');
-                if(ip_arr.length != 4){
+                if (ip_arr.length != 4) {
                     return false;
                 }
                 for (i = 0; i < ip_arr.length; i++) {
-                    if(ip_arr[i] < 0 || ip_arr[i] > 255){
+                    if (ip_arr[i] < 0 || ip_arr[i] > 255) {
                         return false;
                     }
                 }
                 return true;
+            },
+            jsonPretty(){
+                this.jsonOutput ={};
+                if(this.jsonInput!=''){
+                    try {
+                        this.jsonOutput = JSON.parse(this.jsonInput)
+                    }catch (error){
+                        this.jsonOutput = error;
+                    }
+                }
             },
             changeDiv(divId) {
                 this.divId = divId;
@@ -218,7 +243,7 @@
                 if (this.uuidCount == '' || this.uuidCount > 100) {
                     this.uuidCount = 100;
                 }
-                axios.get(server_url+'/tool/genUuids?uuidCount=' + this.uuidCount)
+                axios.get(server_url + '/tool/genUuids?uuidCount=' + this.uuidCount)
                     .then((response) => {
                         this.uuids = [];
                         var resUuids = response.data.result;
@@ -233,11 +258,11 @@
             doMd5() {
                 this.md5Result = '';
                 this.md5Error = '';
-                if(this.md5Text==''){
+                if (this.md5Text == '') {
                     this.md5Error = '加密字符串不能为空';
                     return;
                 }
-                axios.get(server_url+'/tool/md5?text=' + this.md5Text)
+                axios.get(server_url + '/tool/md5?text=' + this.md5Text)
                     .then((response) => {
                         this.md5Result = response.data.result;
                     })
@@ -248,21 +273,21 @@
             doIpRegion() {
                 this.ipRegionResult = '';
                 this.ipRegionError = '';
-                if(this.ipText==''){
+                if (this.ipText == '') {
                     this.ipRegionError = '请输入ip地址';
                     return;
-                }else{
-                    if(!this.isIp(this.ipText)){
+                } else {
+                    if (!this.isIp(this.ipText)) {
                         this.ipRegionError = 'ip地址不合法';
                         return;
                     }
                 }
-                axios.get(server_url+'/tool/ipRegion?ip=' + this.ipText)
+                axios.get(server_url + '/tool/ipRegion?ip=' + this.ipText)
                     .then((response) => {
-                        if(response.status==200){
-                            if(response.data.code==200){
+                        if (response.status == 200) {
+                            if (response.data.code == 200) {
                                 this.ipRegionResult = response.data.result;
-                            }else{
+                            } else {
                                 this.ipRegionError = response.data.msg;
                             }
                         }
@@ -322,9 +347,9 @@
                 if (this.validateImageParam()) {
                     this.createImageResult = '';
                     this.createImageError = '';
-                    axios.get(server_url+"/tool/createImage?width=" + this.imageWidth + "&height=" + this.imageHeight + "&MB=" + this.imageMB + "&imageType=" + this.imageType + "&imageColor=" + this.imageColor.substr(1) + "&timestamp=" + new Date().getTime(),{responseType:'blob'})
+                    axios.get(server_url + "/tool/createImage?width=" + this.imageWidth + "&height=" + this.imageHeight + "&MB=" + this.imageMB + "&imageType=" + this.imageType + "&imageColor=" + this.imageColor.substr(1) + "&timestamp=" + new Date().getTime(), {responseType: 'blob'})
                         .then((res) => {
-                            if(res.status==200) {
+                            if (res.status == 200) {
                                 var responseType = res.headers['content-type'];
                                 if (responseType.startsWith("application/json")) {
                                     const reader = new FileReader();
@@ -348,9 +373,9 @@
                 if (this.validateImageParam()) {
                     this.createImageResult = '';
                     this.createImageError = '';
-                    axios.get(server_url+"/tool/createImage?width=" + this.imageWidth + "&height=" + this.imageHeight + "&MB=" + this.imageMB + "&imageType=" + this.imageType + "&imageColor=" + this.imageColor.substr(1) + "&timestamp=" + new Date().getTime(),{responseType:'blob'})
+                    axios.get(server_url + "/tool/createImage?width=" + this.imageWidth + "&height=" + this.imageHeight + "&MB=" + this.imageMB + "&imageType=" + this.imageType + "&imageColor=" + this.imageColor.substr(1) + "&timestamp=" + new Date().getTime(), {responseType: 'blob'})
                         .then((res) => {
-                            if(res.status==200) {
+                            if (res.status == 200) {
                                 var responseType = res.headers['content-type'];
                                 if (responseType.startsWith("application/json")) {
                                     const reader = new FileReader();
@@ -456,6 +481,7 @@
     .li_selected {
         background-color: #d2c9c9;
     }
+
     .c_left_nav li a:hover {
         color: #9e9edd;
         text-decoration: none;
@@ -522,6 +548,15 @@
         font-size: 10px;
         color: red;
         left: 80px;
+    }
+    .json_pretty_input{
+        width: 38%;
+        height: 600px;
+    }
+    .json_pretty_output{
+        border: 2px solid #eee;
+        width: 38%;
+        height: 600px;
     }
 </style>
 </html>
