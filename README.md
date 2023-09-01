@@ -8,5 +8,6 @@ https://github.com/lionsoul2014/ip2region
 
 https://github.com/dromara/hutool
 
-https://github.com/leezng/vue-json-pretty
+https://github.com/codemirror/codemirror5
 
+https://github.com/surmon-china/vue-codemirror
