@@ -11,3 +11,5 @@ https://github.com/dromara/hutool
 https://github.com/codemirror/codemirror5
 
 https://github.com/surmon-china/vue-codemirror
+
+https://github.com/wickedest/Mergely
