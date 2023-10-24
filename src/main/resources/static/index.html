@@ -16,8 +16,8 @@
     <script type="text/javascript" src="./js/fold/foldgutter.js"></script>
     <script type="text/javascript" src="./js/fold/indent-fold.js"></script>
     <script type="text/javascript" src="./js/fold/markdown-fold.js"></script>
-    <script type="text/javascript" src="./js/fold/xml-fold.js">
-    </script><script type="text/javascript" src="./js/jquery.min.js"></script>
+    <script type="text/javascript" src="./js/fold/xml-fold.js"></script>
+    <script type="text/javascript" src="./js/jquery.min.js"></script>
     <script src="./js/mergely.min.js"></script>
     <link href="./js/fold/foldgutter.css" rel="stylesheet">
     <link href="./css/theme/eclipse.css" rel="stylesheet">
@@ -280,20 +280,24 @@
             },
             changeDiv(divId) {
                 this.divId = divId;
-                if(this.divId=='textDiff'){
-                    $(document).ready(function () {
-                        $('#textDiffDiv').mergely({
-                            lhs: function(setValue) {
-                                setValue('the quick red fox\njumped over the hairy dog');
-                            },
-                            rhs: function(setValue) {
-                                setValue('the quick brown fox\njumped over the lazy dog');
-                            },
-                            editor_width:'300px',
-                            editor_height:'200px',
+                setTimeout(()=>{
+                    console.log(this.divId)
+                    if(this.divId=='textDiff'){
+                        $(document).ready(function () {
+                            $('#textDiffDiv').mergely({
+                                lhs: function(setValue) {
+                                    setValue('the quick red fox\njumped over the hairy dog');
+                                },
+                                rhs: function(setValue) {
+                                    setValue('the quick brown fox\njumped over the lazy dog');
+                                },
+                                editor_width:'300px',
+                                editor_height:'200px',
+                            });
                         });
-                    });
-                }
+                    }
+                });
+
             },
             doGenUuid() {
                 if (this.uuidCount == '' || this.uuidCount > 100) {
