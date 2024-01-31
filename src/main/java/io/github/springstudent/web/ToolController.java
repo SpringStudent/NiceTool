@@ -1,6 +1,7 @@
 package io.github.springstudent.web;
 
 import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.ZipUtil;
 import cn.hutool.crypto.SecureUtil;
 import cn.hutool.json.JSONUtil;
 import io.github.springstudent.bean.InterfaceLimit;
@@ -29,16 +30,16 @@ public class ToolController {
 
     @GetMapping("/createImage")
     @InterfaceLimit
-    public void createImage(@RequestParam int width, @RequestParam int height, @RequestParam int MB, @RequestParam String imageType,@RequestParam String imageColor) throws Exception {
+    public void createImage(@RequestParam int width, @RequestParam int height, @RequestParam int MB, @RequestParam String imageType, @RequestParam String imageColor) throws Exception {
         try {
             if (MB > 200) {
                 response.setCharacterEncoding("UTF-8");
                 response.setContentType("application/json;charset=UTF-8");
-                response.getWriter().println(JSONUtil.toJsonStr(ResponseEntity.fail("image size exceed 200MB", 500)));
+                response.getWriter().println(JSONUtil.toJsonStr(ResponseEntity.fail("图片大小不能超过200MB", 500)));
                 return;
             }
             imageType = imageType.toLowerCase();
-            byte[] bytes = ImageUtil.createImage(width, height, MB, imageType,imageColor);
+            byte[] bytes = ImageUtil.createImage(width, height, MB, imageType, imageColor);
             OutputStream outputStream = response.getOutputStream();
             response.addHeader("Access-Control-Expose-Headers", "Content-Disposition");
             response.addHeader("Content-Disposition", "attachment;filename=" + IdUtil.fastSimpleUUID() + "." + imageType);
@@ -49,8 +50,33 @@ public class ToolController {
         } catch (Exception e) {
             response.setContentType("application/json;charset=UTF-8");
             response.getWriter().write(JSONUtil.toJsonStr(ResponseEntity.fail("创建图片失败", 500)));
-            return;
 
+        }
+    }
+
+    @GetMapping("/createBatchImage")
+    @InterfaceLimit
+    public void createBatchImage(@RequestParam int imageNum, @RequestParam int width, @RequestParam int height, @RequestParam int MB, @RequestParam String imageType, @RequestParam String imageColor) throws Exception {
+        try {
+            if (imageNum * MB > 200) {
+                response.setCharacterEncoding("UTF-8");
+                response.setContentType("application/json;charset=UTF-8");
+                response.getWriter().println(JSONUtil.toJsonStr(ResponseEntity.fail("多个图片的总大小不能超过200MB", 500)));
+                return;
+            }
+            imageType = imageType.toLowerCase();
+            byte[] bytes = ImageUtil.createBatchImage(imageNum, width, height, MB, imageType, imageColor);
+            OutputStream outputStream = response.getOutputStream();
+            response.addHeader("Access-Control-Expose-Headers", "Content-Disposition");
+            response.addHeader("Content-Disposition", "attachment;filename=" + IdUtil.fastSimpleUUID() + ".zip");
+            response.addHeader("Content-Type", "application/zip");
+            outputStream.write(bytes);
+            outputStream.flush();
+            outputStream.close();
+        } catch (Exception e) {
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write(JSONUtil.toJsonStr(ResponseEntity.fail("批量创建图片失败", 500)));
+            return;
         }
     }
 

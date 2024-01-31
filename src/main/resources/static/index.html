@@ -22,7 +22,7 @@
     <link href="./js/fold/foldgutter.css" rel="stylesheet">
     <link href="./css/theme/eclipse.css" rel="stylesheet">
     <link href="./css/codemirror.min.css" rel="stylesheet">
-    <link type="text/css" rel="stylesheet" href="./css/mergely.css" />
+    <link type="text/css" rel="stylesheet" href="./css/mergely.css"/>
 </head>
 <body>
 <div id="app">
@@ -33,11 +33,14 @@
         <div class="c_left">
             <ul type="none" class="c_left_nav">
                 <li :class="divId=='jsonPretty'?'li_selected':'li_nonselected'"><a @click="changeDiv('jsonPretty')">json验证</a>
-                <li :class="divId=='textDiff'?'li_selected':'li_nonselected'"><a @click="changeDiv('textDiff')">文本比对</a>
+                <li :class="divId=='textDiff'?'li_selected':'li_nonselected'"><a
+                        @click="changeDiv('textDiff')">文本比对</a>
                 <li :class="divId=='createImage'?'li_selected':'li_nonselected'"><a @click="changeDiv('createImage')">图片生成</a>
                 </li>
-                <li :class="divId=='ipRegion'?'li_selected':'li_nonselected'"><a @click="changeDiv('ipRegion')">ip归属地</a></li>
-                <li :class="divId=='genUuid'?'li_selected':'li_nonselected'"><a @click="changeDiv('genUuid')">uuid生成</a>
+                <li :class="divId=='ipRegion'?'li_selected':'li_nonselected'"><a
+                        @click="changeDiv('ipRegion')">ip归属地</a></li>
+                <li :class="divId=='genUuid'?'li_selected':'li_nonselected'"><a
+                        @click="changeDiv('genUuid')">uuid生成</a>
                 </li>
                 <li :class="divId=='md5'?'li_selected':'li_nonselected'"><a @click="changeDiv('md5')">md5加密</a></li>
                 <li :class="divId=='timeConvert'?'li_selected':'li_nonselected'"><a @click="changeDiv('timeConvert')">时间转换</a>
@@ -48,7 +51,8 @@
         <div class="c_right">
             <div id="jsonPretty" v-show="divId=='jsonPretty'" style="display: flex;justify-content: center;">
                 <div class="json_pretty_input">
-                    <textarea class="text_area" placeholder="请输入json字符" v-model="jsonInput" @blur="jsonPretty" @keyup="jsonPretty" @change="jsonPretty"></textarea>
+                    <textarea class="text_area" placeholder="请输入json字符" v-model="jsonInput" @blur="jsonPretty"
+                              @keyup="jsonPretty" @change="jsonPretty"></textarea>
                 </div>
                 <div class="json_pretty_output">
                     <local-codemirror class="text_area" ref="jsonOutputRef" v-model="jsonOutput" :options="jsonOption">
@@ -56,7 +60,7 @@
                 </div>
             </div>
             <div id="textDiff" v-show="divId=='textDiff'" style="width: 90%;height:680px;text-align: left">
-                <div id="textDiffDiv" ></div>
+                <div id="textDiffDiv"></div>
             </div>
             <div id="genUuid" v-show="divId=='genUuid'">
                 <input type="number" maxlength="3" class="text_input" v-model="uuidCount" placeholder="生成uuid的个数"
@@ -128,7 +132,12 @@
                     <option value="png">png</option>
                 </select>
                 <button @click="doViewImage()" class="bttn">预览</button>
-                <button @click="doCreateImage()" class="bttn">下载</button>
+                <button @click="doCreateImage(1)" class="bttn">下载</button>
+                <div class="download_batch_image">
+                    <button @click="doCreateImage(5)" class="bttn">下载5个</button>
+                    <button @click="doCreateImage(10)" class="bttn">下载10个</button>
+                    <button @click="doCreateImage(20)" class="bttn">下载20个</button>
+                </div>
                 <div class="input_result" v-if="createImageResult!=''">
                     <img :src="createImageResult" style="border-color: red;border: 2px solid red"/>
                 </div>
@@ -187,7 +196,7 @@
 </body>
 <script type="module">
 
-    const server_url = "http://172.16.2.121:8555";
+    const server_url = "http://172.16.1.72:8555";
     Vue.use(VueCodemirror)
     var vm = new Vue({
         el: "#app",
@@ -221,10 +230,10 @@
             imageColor: '#FFFFFF',
             createImageResult: '',
             createImageError: '',
-            jsonInput:'',
+            jsonInput: '',
             jsonOutput: '',
             jsonOption: {
-                theme:'eclipse',
+                theme: 'eclipse',
                 indentWithTab: true,
                 tabSize: 2,
                 autofocus: true,
@@ -232,7 +241,7 @@
                 lineNumbers: true,
                 lineWrapping: true,
                 foldGutter: {
-                    rangeFinder: new CodeMirror.fold.combine(CodeMirror.fold.indent,CodeMirror.fold.comment)
+                    rangeFinder: new CodeMirror.fold.combine(CodeMirror.fold.indent, CodeMirror.fold.comment)
                 },
                 gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
             }
@@ -263,36 +272,36 @@
                 }
                 return true;
             },
-            jsonPretty(){
-                this.jsonOutput ='';
-                if(this.jsonInput!=''){
+            jsonPretty() {
+                this.jsonOutput = '';
+                if (this.jsonInput != '') {
                     try {
                         var result = jsonlint.parse(this.jsonInput);
                         if (result) {
                             this.jsonOutput = JSON.stringify(result, null, "  ");
-                        }else{
+                        } else {
                             this.jsonOutput = 'json valid error';
                         }
-                    }catch (e){
-                        this.jsonOutput =e.toString();
+                    } catch (e) {
+                        this.jsonOutput = e.toString();
                     }
                 }
             },
             changeDiv(divId) {
                 this.divId = divId;
-                setTimeout(()=>{
+                setTimeout(() => {
                     console.log(this.divId)
-                    if(this.divId=='textDiff'){
+                    if (this.divId == 'textDiff') {
                         $(document).ready(function () {
                             $('#textDiffDiv').mergely({
-                                lhs: function(setValue) {
+                                lhs: function (setValue) {
                                     setValue('the quick red fox\njumped over the hairy dog');
                                 },
-                                rhs: function(setValue) {
+                                rhs: function (setValue) {
                                     setValue('the quick brown fox\njumped over the lazy dog');
                                 },
-                                editor_width:'300px',
-                                editor_height:'200px',
+                                editor_width: '300px',
+                                editor_height: '200px',
                             });
                         });
                     }
@@ -429,11 +438,15 @@
                         });
                 }
             },
-            doCreateImage() {
+            doCreateImage(imageNum) {
                 if (this.validateImageParam()) {
                     this.createImageResult = '';
                     this.createImageError = '';
-                    axios.get(server_url + "/tool/createImage?width=" + this.imageWidth + "&height=" + this.imageHeight + "&MB=" + this.imageMB + "&imageType=" + this.imageType + "&imageColor=" + this.imageColor.substr(1) + "&timestamp=" + new Date().getTime(), {responseType: 'blob'})
+                    let baseUrl = "/tool/createImage?";
+                    if (imageNum > 1) {
+                        baseUrl = "/tool/createBatchImage?imageNum=" + imageNum + "&";
+                    }
+                    axios.get(server_url + baseUrl + "width=" + this.imageWidth + "&height=" + this.imageHeight + "&MB=" + this.imageMB + "&imageType=" + this.imageType + "&imageColor=" + this.imageColor.substr(1) + "&timestamp=" + new Date().getTime(), {responseType: 'blob'})
                         .then((res) => {
                             if (res.status == 200) {
                                 var responseType = res.headers['content-type'];
@@ -571,15 +584,10 @@
         font-size: 18px;
     }
 
-    .input_bttn {
-        margin-left: 15px;
-        height: 35px;
-        font-size: 18px;
-    }
-
-    .bttn_selected {
-        background-color: red;
-        border: 1px solid;
+    .download_batch_image {
+        display: block;
+        margin: 0 auto;
+        margin-top: 15px;
     }
 
     .input_result {
@@ -607,22 +615,26 @@
         color: red;
         left: 80px;
     }
-    .json_pretty_input,.json_pretty_output{
+
+    .json_pretty_input, .json_pretty_output {
         width: 47%;
         height: 680px;
     }
-    .json_pretty_output{
+
+    .json_pretty_output {
         width: 49%;
     }
-    .text_area{
-        font-size:15px;
-        width:95%;
-        height:98%;
+
+    .text_area {
+        font-size: 15px;
+        width: 95%;
+        height: 98%;
         resize: none;
-        outline:none;
+        outline: none;
         text-align: left;
         border: 2px solid #eee;
     }
+
     .CodeMirror {
         border: none;
         height: 100%;
