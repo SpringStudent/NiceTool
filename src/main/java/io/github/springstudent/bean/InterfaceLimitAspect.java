@@ -26,7 +26,6 @@ import java.util.concurrent.TimeUnit;
  */
 @Aspect
 @Component
-@Slf4j
 public class InterfaceLimitAspect {
     private static ConcurrentHashMap<String, ExpiringMap<String, Integer>> book = new ConcurrentHashMap<>();
 
@@ -52,9 +51,8 @@ public class InterfaceLimitAspect {
         ExpiringMap<String, Integer> uc = book.getOrDefault(request.getRequestURI(), ExpiringMap.builder().variableExpiration().build());
         Integer uCount = uc.getOrDefault(ip, 0);
         if (uCount >= value) {
-            log.error("接口拦截：{} 请求超过限制频率【{}次/{}ms】,IP为{}", request.getRequestURI(), value, time, ip);
             response.setContentType("application/json;charset=UTF-8");
-            response.getWriter().write(JSONUtil.toJsonStr(ResponseEntity.fail("请求频次超过限制", 500)));
+            response.getWriter().write(JSONUtil.toJsonStr(ResponseEntity.fail("请求频次超过限制："+value+"次"+"每"+time+"ms", 500)));
             return null;
         } else if (uCount == 0) {
             uc.put(ip, uCount + 1, ExpirationPolicy.CREATED, time, TimeUnit.MILLISECONDS);

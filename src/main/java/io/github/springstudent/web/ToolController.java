@@ -55,7 +55,7 @@ public class ToolController {
     }
 
     @GetMapping("/createBatchImage")
-    @InterfaceLimit
+    @InterfaceLimit(time = 1000, value = 1)
     public void createBatchImage(@RequestParam int imageNum, @RequestParam int width, @RequestParam int height, @RequestParam int MB, @RequestParam String imageType, @RequestParam String imageColor) throws Exception {
         try {
             if (imageNum * MB > 200) {
