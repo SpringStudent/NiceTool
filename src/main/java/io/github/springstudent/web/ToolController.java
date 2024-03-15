@@ -50,7 +50,7 @@ public class ToolController {
     }
 
     @GetMapping("/createBatchImage")
-    @InterfaceLimit(time = 1000, value = 1)
+    @InterfaceLimit(time = 3000, value = 1)
     public void createBatchImage(@RequestParam int imageNum, @RequestParam int width, @RequestParam int height, @RequestParam int MB, @RequestParam String imageType, @RequestParam String imageColor) throws Exception {
         try {
             if (imageNum * MB > 200) {
@@ -77,6 +77,7 @@ public class ToolController {
 
 
     @GetMapping("/ipRegion")
+    @InterfaceLimit
     public ResponseEntity<String> ipRegion(@RequestParam String ip) throws Exception {
         return ResponseEntity.success(Ip2RegionUtil.ip2Region(ip));
     }
