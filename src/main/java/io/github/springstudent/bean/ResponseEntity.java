@@ -48,6 +48,5 @@ public class ResponseEntity<T> {
 
     public static <T> ResponseEntity success(T result) {
         return new ResponseEntity("success", 200, result);
-
     }
 }

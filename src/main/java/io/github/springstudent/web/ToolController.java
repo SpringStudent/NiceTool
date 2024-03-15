@@ -1,8 +1,6 @@
 package io.github.springstudent.web;
 
 import cn.hutool.core.util.IdUtil;
-import cn.hutool.core.util.ZipUtil;
-import cn.hutool.crypto.SecureUtil;
 import cn.hutool.json.JSONUtil;
 import io.github.springstudent.bean.InterfaceLimit;
 import io.github.springstudent.bean.ResponseEntity;
@@ -13,9 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
-
 
 /**
  * @author 周宁
@@ -80,22 +75,9 @@ public class ToolController {
         }
     }
 
-    @GetMapping("/md5")
-    public ResponseEntity<String> md5(@RequestParam String text) throws Exception {
-        return ResponseEntity.success(SecureUtil.md5(text));
-    }
 
     @GetMapping("/ipRegion")
     public ResponseEntity<String> ipRegion(@RequestParam String ip) throws Exception {
         return ResponseEntity.success(Ip2RegionUtil.ip2Region(ip));
-    }
-
-    @GetMapping("/genUuids")
-    public ResponseEntity<List<String>> genUuid(@RequestParam int uuidCount) {
-        List<String> uids = new ArrayList<>();
-        for (int i = 0; i < uuidCount; i++) {
-            uids.add(IdUtil.fastSimpleUUID());
-        }
-        return ResponseEntity.success(uids);
     }
 }

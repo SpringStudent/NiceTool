@@ -18,6 +18,7 @@
     <script type="text/javascript" src="./js/fold/markdown-fold.js"></script>
     <script type="text/javascript" src="./js/fold/xml-fold.js"></script>
     <script type="text/javascript" src="./js/jquery.min.js"></script>
+    <script type="text/javascript" src="./js/crypto-js.min.js"></script>
     <script src="./js/mergely.min.js"></script>
     <link href="./js/fold/foldgutter.css" rel="stylesheet">
     <link href="./css/theme/eclipse.css" rel="stylesheet">
@@ -195,7 +196,6 @@
 </div>
 </body>
 <script type="module">
-
     const server_url = "http://172.16.1.72:8555";
     Vue.use(VueCodemirror)
     var vm = new Vue({
@@ -309,20 +309,19 @@
 
             },
             doGenUuid() {
+                this.uuids.length=0;
                 if (this.uuidCount == '' || this.uuidCount > 100) {
                     this.uuidCount = 100;
                 }
-                axios.get(server_url + '/tool/genUuids?uuidCount=' + this.uuidCount)
-                    .then((response) => {
-                        this.uuids = [];
-                        var resUuids = response.data.result;
-                        for (var i = 0; i < resUuids.length; i++) {
-                            this.uuids.push(resUuids[i]);
-                        }
-                    })
-                    .catch((error) => {
-                        console.log(error);
-                    });
+                for (var i = 0; i < this.uuidCount; i++) {
+                    this.uuids.push(this.genUuid());
+                }
+            },
+            genUuid() {
+                return 'xxxxxxxxxxxx4xxxyxxxxxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                    var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+                    return v.toString(16);
+                });
             },
             doMd5() {
                 this.md5Result = '';
@@ -331,13 +330,7 @@
                     this.md5Error = '加密字符串不能为空';
                     return;
                 }
-                axios.get(server_url + '/tool/md5?text=' + this.md5Text)
-                    .then((response) => {
-                        this.md5Result = response.data.result;
-                    })
-                    .catch((error) => {
-                        console.log(error);
-                    });
+                this.md5Result = window.CryptoJS.MD5(this.md5Text).toString();
             },
             doIpRegion() {
                 this.ipRegionResult = '';
