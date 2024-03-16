@@ -196,7 +196,7 @@
 </div>
 </body>
 <script type="module">
-    const server_url = "http://172.16.1.72:8555";
+    const server_url = "http://localhost:8555";
     Vue.use(VueCodemirror)
     var vm = new Vue({
         el: "#app",
@@ -251,15 +251,19 @@
         },
         mounted() {
             var current = new Date();
-            this.nowMillSeconds = current.getTime();
-            this.nowSeconds = Math.round(current.getTime() / 1000);
             this.inputDate = this.formatDate(current);
             this.inputMills = current.getTime();
             this.inputSeconds = Math.round(current.getTime() / 1000);
             this.changeDiv('jsonPretty');
-
+            this.startTimer();
         },
         methods: {
+            startTimer() {
+                setInterval(() => {
+                    this.nowMillSeconds = new Date().getTime();
+                    this.nowSeconds = Math.round(new Date().getTime() / 1000);
+                }, 1000);
+            },
             isIp(ip) {
                 var ip_arr = ip.split('.');
                 if (ip_arr.length != 4) {
