@@ -2,15 +2,34 @@ package io.github.springstudent.web;
 
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.json.JSONUtil;
+import io.github.springstudent.bean.AddWatermarkRequest;
 import io.github.springstudent.bean.InterfaceLimit;
 import io.github.springstudent.bean.ResponseEntity;
 import io.github.springstudent.util.ImageUtil;
 import io.github.springstudent.util.Ip2RegionUtil;
+import io.github.springstudent.util.WatermarkUtils;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.graphics.state.PDExtendedGraphicsState;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author 周宁
@@ -81,4 +100,61 @@ public class ToolController {
     public ResponseEntity<String> ipRegion(@RequestParam String ip) throws Exception {
         return ResponseEntity.success(Ip2RegionUtil.ip2Region(ip));
     }
+
+    @PostMapping(consumes = "multipart/form-data", value = "/addWatermark")
+    public org.springframework.http.ResponseEntity<byte[]> addWatermark(@ModelAttribute AddWatermarkRequest request)
+            throws IOException, Exception {
+        MultipartFile pdfFile = request.getFileInput();
+        String watermarkType = request.getWatermarkType();
+        String watermarkText = request.getWatermarkText();
+        MultipartFile watermarkImage = request.getWatermarkImage();
+        String alphabet = request.getAlphabet();
+        float fontSize = request.getFontSize();
+        float rotation = request.getRotation();
+        float opacity = request.getOpacity();
+        int widthSpacer = request.getWidthSpacer();
+        int heightSpacer = request.getHeightSpacer();
+        PDDocument document = Loader.loadPDF(pdfFile.getBytes());
+        for (PDPage page : document.getPages()) {
+            PDPageContentStream contentStream =
+                    new PDPageContentStream(
+                            document, page, PDPageContentStream.AppendMode.APPEND, true, true);
+            PDExtendedGraphicsState graphicsState = new PDExtendedGraphicsState();
+            graphicsState.setNonStrokingAlphaConstant(opacity);
+            contentStream.setGraphicsStateParameters(graphicsState);
+            if ("text".equalsIgnoreCase(watermarkType)) {
+                WatermarkUtils.addTextWatermark(
+                        contentStream,
+                        watermarkText,
+                        document,
+                        page,
+                        rotation,
+                        widthSpacer,
+                        heightSpacer,
+                        fontSize,
+                        alphabet);
+            } else if ("image".equalsIgnoreCase(watermarkType)) {
+                WatermarkUtils.addImageWatermark(
+                        contentStream,
+                        watermarkImage,
+                        document,
+                        page,
+                        rotation,
+                        widthSpacer,
+                        heightSpacer,
+                        fontSize);
+            }
+            contentStream.close();
+        }
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        document.save(baos);
+        document.close();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentLength(baos.toByteArray().length);
+        String encodedDocName = URLEncoder.encode(pdfFile.getOriginalFilename().replaceFirst("[.][^.]+$", "") + "_watermarked.pdf", StandardCharsets.UTF_8.toString()).replaceAll("\\+", "%20");
+        headers.setContentDispositionFormData("attachment", encodedDocName);
+        return new org.springframework.http.ResponseEntity<>(baos.toByteArray(), headers, HttpStatus.OK);
+    }
+
 }

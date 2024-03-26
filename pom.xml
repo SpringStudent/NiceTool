@@ -23,7 +23,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <optional>true</optional>
+            <version>1.18.24</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -78,9 +78,9 @@
             <version>5.2.3</version>
         </dependency>
         <dependency>
-            <groupId>com.luhuiguo</groupId>
-            <artifactId>aspose-words</artifactId>
-            <version>23.1</version>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
+            <version>3.0.2</version>
         </dependency>
     </dependencies>
 
