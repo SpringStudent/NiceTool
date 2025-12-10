@@ -305,6 +305,83 @@
             bottom: -18px;
             left: 0;
         }
+        /* JSON 专用布局 */
+        .json-toolbar {
+            height: 40px;
+            border-bottom: 1px solid #ddd;
+            background-color: #f7f7f7;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            flex-shrink: 0;
+        }
+
+        .tool-btn {
+            display: inline-block;
+            padding: 5px 12px;
+            margin-right: 10px;
+            font-size: 13px;
+            color: #333;
+            cursor: pointer;
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .tool-btn:hover {
+            background-color: #e6f7ff;
+            color: #1890ff;
+            border-color: #1890ff;
+        }
+
+        .json-editor-container {
+            flex: 1;
+            display: flex;
+            overflow: hidden; /* 防止撑开 */
+            position: relative;
+        }
+
+        .editor-half {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0; /* 关键：防止flex子项溢出 */
+            position: relative;
+        }
+
+        .editor-divider {
+            width: 1px;
+            background-color: #ddd;
+            z-index: 5;
+        }
+
+        .pane-label {
+            padding: 5px 10px;
+            background-color: #fafafa;
+            border-bottom: 1px solid #eee;
+            font-size: 12px;
+            color: #999;
+        }
+
+        /* 覆盖 CodeMirror 默认样式以适应全屏 */
+        .vue-codemirror {
+            flex: 1;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* 错误提示框 */
+        .json-error-box {
+            padding: 20px;
+            color: #a94442;
+            background-color: #f2dede;
+            border: 1px solid #ebccd1;
+            margin: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
 
         /* CodeMirror Fixes */
         .vue-codemirror { height: 100%; }
@@ -345,17 +422,56 @@
     <main class="main-content">
 
         <!-- JSON 验证 -->
-        <div v-show="divId=='jsonPretty'" class="card">
-            <div class="page-header">JSON 验证与格式化</div>
-            <div class="json-container">
-                <div class="json-box">
-                    <div class="json-box-header">输入 (Source)</div>
-                    <textarea class="json-textarea" placeholder="在此粘贴 JSON 字符串..."
-                              v-model="jsonInput" @blur="jsonPretty" @keyup="jsonPretty" @change="jsonPretty"></textarea>
+        <!-- JSON 验证/格式化 区域 -->
+        <div id="jsonPretty" v-show="divId=='jsonPretty'" class="card" style="padding: 0; display: flex; flex-direction: column; height: 100%;">
+            <!-- 顶部工具栏 -->
+            <div class="json-toolbar">
+                <div class="toolbar-left">
+                    <span class="tool-btn" @click="jsonPretty"><i class="fa-solid fa-indent"></i> 格式化</span>
+                    <span class="tool-btn" @click="jsonCompress"><i class="fa-solid fa-compress"></i> 压缩</span>
+                    <span class="tool-btn" @click="jsonClear"><i class="fa-solid fa-trash-can"></i> 清空</span>
                 </div>
-                <div class="json-box">
-                    <div class="json-box-header">结果 (Result)</div>
-                    <local-codemirror ref="jsonOutputRef" v-model="jsonOutput" :options="jsonOption"></local-codemirror>
+                <div class="toolbar-right">
+                    <!-- 可以在这里加 保存/复制 等按钮 -->
+                </div>
+            </div>
+
+            <!-- 左右分栏编辑器 -->
+            <div class="json-editor-container">
+                <!-- 左侧：输入区 -->
+                <div class="editor-half">
+                    <div class="pane-label">输入 (Source)</div>
+                    <!-- 使用 codemirror 替换原有的 textarea -->
+                    <local-codemirror
+                            ref="jsonInputRef"
+                            v-model="jsonInput"
+                            :options="inputOption"
+                            @input="handleJsonChange">
+                    </local-codemirror>
+                </div>
+
+                <!-- 中间：分割线/错误提示 -->
+                <div class="editor-divider"></div>
+
+                <!-- 右侧：展示区 -->
+                <div class="editor-half">
+                    <div class="pane-label">
+                        解析结果 (Tree)
+                        <span v-if="jsonError" style="color: #ff4d4f; font-size: 12px; margin-left: 10px;">
+                    <i class="fa-solid fa-circle-exclamation"></i> 格式错误
+                </span>
+                        <span v-else style="color: #52c41a; font-size: 12px; margin-left: 10px;">
+                    <i class="fa-solid fa-check-circle"></i> 有效
+                </span>
+                    </div>
+                    <!-- 结果显示 -->
+                    <div v-if="jsonError" class="json-error-box">{{jsonError}}</div>
+                    <local-codemirror
+                            v-show="!jsonError"
+                            ref="jsonOutputRef"
+                            v-model="jsonOutput"
+                            :options="outputOption">
+                    </local-codemirror>
                 </div>
             </div>
         </div>
@@ -561,14 +677,26 @@
             createImageError: '',
             jsonInput: '',
             jsonOutput: '',
-            jsonOption: {
-                theme: 'eclipse',
-                indentWithTab: true,
+            jsonError: '',
+            // 左侧输入框配置：可编辑
+            inputOption: {
                 tabSize: 2,
-                autofocus: true,
-                language: 'javascript',
+                mode: 'application/json', // 确保引入了 javascript 模式，它包含 json
+                theme: 'eclipse',
                 lineNumbers: true,
                 lineWrapping: true,
+                styleActiveLine: true,
+                matchBrackets: true,
+                autoCloseBrackets: true,
+                // 输入框一般不需要折叠，但你想加也可以加
+            },
+            outputOption: {
+                tabSize: 2,
+                mode: 'application/json',
+                theme: 'eclipse',
+                lineNumbers: true,
+                lineWrapping: true,
+                readOnly: true,
                 foldGutter: {
                     rangeFinder: new CodeMirror.fold.combine(CodeMirror.fold.indent, CodeMirror.fold.comment)
                 },
@@ -605,20 +733,49 @@
                 }
                 return true;
             },
+            // 监听输入变化，实时格式化
+            handleJsonChange() {
+                this.jsonPretty();
+            },
+            // 格式化逻辑
             jsonPretty() {
-                this.jsonOutput = '';
-                if (this.jsonInput != '') {
-                    try {
-                        var result = jsonlint.parse(this.jsonInput);
-                        if (result) {
-                            this.jsonOutput = JSON.stringify(result, null, "  ");
-                        } else {
-                            this.jsonOutput = 'json valid error';
-                        }
-                    } catch (e) {
-                        this.jsonOutput = e.toString();
-                    }
+                this.jsonError = ''; // 重置错误
+                if (!this.jsonInput) {
+                    this.jsonOutput = '';
+                    return;
                 }
+                try {
+                    // 使用 jsonlint 解析，它比原生 JSON.parse 报错更详细
+                    var result = jsonlint.parse(this.jsonInput);
+                    if (result) {
+                        // 格式化输出，缩进2空格
+                        this.jsonOutput = JSON.stringify(result, null, 2);
+                    }
+                } catch (e) {
+                    // 捕获错误显示在界面上
+                    this.jsonError = e.message;
+                    // 可以在这里不清空 output，保留上一次正确的结果，或者清空看你喜好
+                    // this.jsonOutput = "";
+                }
+            },
+
+            // 压缩逻辑
+            jsonCompress() {
+                this.jsonError = '';
+                if (!this.jsonInput) return;
+                try {
+                    var result = jsonlint.parse(this.jsonInput);
+                    this.jsonOutput = JSON.stringify(result);
+                } catch (e) {
+                    this.jsonError = e.message;
+                }
+            },
+
+            // 清空
+            jsonClear() {
+                this.jsonInput = '';
+                this.jsonOutput = '';
+                this.jsonError = '';
             },
             changeDiv(divId) {
                 this.divId = divId;
