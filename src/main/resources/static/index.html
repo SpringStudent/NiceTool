@@ -4,9 +4,6 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>开发者在线工具箱</title>
-
-
-
     <!-- 保持原有的依赖引用 -->
     <script type="text/javascript" src="./js/vue.js"></script>
     <script type="text/javascript" src="./js/json2.js"></script>
@@ -383,6 +380,93 @@
             white-space: pre-wrap;
         }
 
+        /* Base64 左右布局专用样式 */
+        .base64-layout {
+            display: flex;
+            flex: 1;
+            gap: 20px;
+            height: calc(100% - 60px); /* 减去标题高度 */
+            align-items: center; /* 垂直居中 */
+        }
+
+        .base64-col {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .base64-textarea {
+            flex: 1; /* 撑满高度 */
+            resize: none;
+            font-family: 'Consolas', monospace;
+            line-height: 1.5;
+            background-color: #fafafa;
+        }
+
+        .base64-textarea:focus {
+            background-color: #fff;
+        }
+
+        .base64-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .btn-icon {
+            width: 100px; /* 固定按钮宽度 */
+            display: flex;
+            justify-content: space-between; /* 图标文字两端对齐 */
+            padding: 10px 15px;
+        }
+
+        .char-count {
+            text-align: right;
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        /* 时间戳徽章容器 */
+        .time-badge-wrapper {
+            display: inline-flex;
+            align-items: center;
+            background: #303133;
+            border-radius: 4px;
+            padding: 5px 12px;
+            margin: 0 10px;
+            color: #fff;
+            font-family: 'Consolas', monospace; /* 使用等宽字体防止数字跳动 */
+        }
+
+        /* 数字样式 */
+        .time-badge {
+            font-size: 24px;
+            font-weight: bold;
+            margin-right: 10px;
+            min-width: 140px; /* 固定宽度，防止因为时间变化导致图标左右抖动 */
+            text-align: right;
+        }
+
+        /* 复制图标样式 */
+        .copy-icon {
+            cursor: pointer;
+            font-size: 16px;
+            color: #909399;
+            transition: all 0.2s;
+            padding: 5px;
+        }
+
+        .copy-icon:hover {
+            color: #409eff; /* 悬停变蓝 */
+            transform: scale(1.1); /* 微微放大 */
+        }
+
+        .copy-icon:active {
+            transform: scale(0.95); /* 点击回缩 */
+        }
         /* CodeMirror Fixes */
         .vue-codemirror { height: 100%; }
         .CodeMirror { height: 100% !important; font-family: 'Consolas', monospace; font-size: 14px; }
@@ -401,10 +485,10 @@
                 <i class="fa-solid fa-right-left"></i> 文本比对
             </li>
             <li class="nav-item" :class="{active: divId=='genUuid'}" @click="changeDiv('genUuid')">
-                <i class="fa-solid fa-fingerprint"></i> UUID 生成
+                <i class="fa-solid fa-fingerprint"></i> UUID生成
             </li>
             <li class="nav-item" :class="{active: divId=='md5'}" @click="changeDiv('md5')">
-                <i class="fa-solid fa-lock"></i> MD5 加密
+                <i class="fa-solid fa-lock"></i> MD5加密
             </li>
             <li class="nav-item" :class="{active: divId=='timeConvert'}" @click="changeDiv('timeConvert')">
                 <i class="fa-regular fa-clock"></i> 时间转换
@@ -413,7 +497,13 @@
                 <i class="fa-regular fa-image"></i> 图片生成
             </li>
             <li class="nav-item" :class="{active: divId=='ipRegion'}" @click="changeDiv('ipRegion')">
-                <i class="fa-solid fa-location-dot"></i> IP 归属地
+                <i class="fa-solid fa-location-dot"></i> IP归属地
+            </li>
+            <li class="nav-item" :class="{active: divId=='urlConvert'}" @click="divId='urlConvert'">
+                <i class="fa-solid fa-link"></i> URL编解码
+            </li>
+            <li class="nav-item" :class="{active: divId=='base64'}" @click="divId='base64'">
+                <i class="fa-solid fa-exchange-alt"></i> Base64转换
             </li>
         </ul>
     </aside>
@@ -595,13 +685,23 @@
         </div>
 
         <!-- 时间转换 -->
-        <div v-show="divId=='timeConvert'" class="card">
+        <div v-show="divId=='timeConvert'" class="card card-padded">
             <div class="page-header">Unix 时间戳转换</div>
 
-            <div style="margin-bottom: 30px; padding: 20px; background: #fafafa; border-radius: 6px; text-align: center;">
-                <div style="font-size: 14px; color: #666; margin-bottom: 10px;">当前系统时间</div>
-                <span class="time-badge" style="font-size: 24px; margin-right: 20px;">{{nowSeconds}} <small style="font-size:12px; opacity:0.7">秒</small></span>
-                <span class="time-badge" style="font-size: 24px;">{{nowMillSeconds}} <small style="font-size:12px; opacity:0.7">毫秒</small></span>
+            <div style="margin-bottom: 30px; padding: 20px; background: #fdf6ec; border-radius: 6px; text-align: center;">
+                <div style="font-size: 14px; color: #e6a23c; margin-bottom: 15px;">当前系统时间 (点击图标复制)</div>
+                <div class="time-badge-wrapper">
+                <span class="time-badge">
+                    {{nowSeconds}} <small style="opacity:0.6; font-size:12px">s</small>
+                </span>
+                    <i class="fa-regular fa-copy copy-icon" @click="copyToClip(nowSeconds)" title="复制秒"></i>
+                </div>
+                <div class="time-badge-wrapper">
+                <span class="time-badge">
+                    {{nowMillSeconds}} <small style="opacity:0.6; font-size:12px">ms</small>
+                </span>
+                    <i class="fa-regular fa-copy copy-icon" @click="copyToClip(nowMillSeconds)" title="复制毫秒"></i>
+                </div>
             </div>
 
             <table class="time-table">
@@ -635,7 +735,70 @@
                 </tbody>
             </table>
         </div>
+        <!-- URL 编码/解码 -->
+        <div v-show="divId=='urlConvert'" class="card card-padded">
+            <div class="page-header">URL编码/解码</div>
 
+            <div class="form-group">
+                <label class="form-label">输入内容:</label>
+                <textarea class="text-input" style="height:100px" v-model="urlInput" placeholder="输入 URL 或 字符串..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <button class="btn" @click="doUrlEncode">编码 (Encode)</button>
+                <button class="btn btn-success" @click="doUrlDecode">解码 (Decode)</button>
+                <button class="btn" style="background:#ff4d4f" @click="urlInput=''; urlOutput=''">清空</button>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">转换结果:</label>
+                <textarea class="text-input" style="height:100px; background:#f9f9f9" readonly v-model="urlOutput"></textarea>
+            </div>
+        </div>
+
+        <!-- Base64 加解密 (左右分栏布局) -->
+        <div v-show="divId=='base64'" class="card" style="padding: 20px;">
+            <div class="page-header">Base64 编码 / 解码</div>
+
+            <div class="base64-layout">
+                <!-- 左侧：明文 -->
+                <div class="base64-col">
+                    <div class="form-label">明文 (Text / Source)</div>
+                    <textarea class="text-input base64-textarea"
+                              v-model="base64Left"
+                              placeholder="请输入要编码的文本..."></textarea>
+                    <div class="char-count">长度: {{base64Left.length}}</div>
+                </div>
+
+                <!-- 中间：操作按钮 -->
+                <div class="base64-controls">
+                    <button class="btn btn-primary btn-icon" @click="doBase64Encode" title="编码: 左 -> 右">
+                        编码 <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+
+                    <button class="btn btn-success btn-icon" @click="doBase64Decode" title="解码: 右 -> 左">
+                        <i class="fa-solid fa-arrow-left"></i> 解码
+                    </button>
+
+                    <button class="btn btn-danger btn-icon" @click="clearBase64" title="清空所有">
+                        <i class="fa-solid fa-trash"></i> 清空
+                    </button>
+                </div>
+
+                <!-- 右侧：密文 -->
+                <div class="base64-col">
+                    <div class="form-label">Base64 (Result)</div>
+                    <textarea class="text-input base64-textarea"
+                              v-model="base64Right"
+                              placeholder="请输入要解码的 Base64 字符串..."></textarea>
+                    <div class="char-count">长度: {{base64Right.length}}</div>
+                </div>
+            </div>
+            <!-- 错误提示 -->
+            <div v-if="base64Error" style="margin-top: 15px; color: #ff4d4f; background: #fff1f0; padding: 10px; border-radius: 4px;">
+                <i class="fa-solid fa-circle-exclamation"></i> {{base64Error}}
+            </div>
+        </div>
     </main>
 </div>
 
@@ -678,7 +841,11 @@
             jsonInput: '',
             jsonOutput: '',
             jsonError: '',
-            // 左侧输入框配置：可编辑
+            urlInput: '',
+            urlOutput: '',
+            base64Left: '',
+            base64Right: '',
+            base64Error: '',
             inputOption: {
                 tabSize: 2,
                 mode: 'application/json', // 确保引入了 javascript 模式，它包含 json
@@ -982,6 +1149,102 @@
             mills2Date() {
                 this.inputMillsDate = this.formatDate(new Date(this.inputMills * 1));
             },
+            doUrlEncode() {
+                try {
+                    this.urlOutput = encodeURIComponent(this.urlInput);
+                } catch (e) {
+                    this.urlOutput = "编码错误: " + e.message;
+                }
+            },
+            doUrlDecode() {
+                try {
+                    this.urlOutput = decodeURIComponent(this.urlInput);
+                } catch (e) {
+                    this.urlOutput = "解码错误: 输入不是有效的 URL 编码";
+                }
+            },
+            doBase64Encode() {
+                this.base64Error = '';
+                if (!this.base64Left) return;
+                try {
+                    // 使用 CryptoJS 处理中文，避免乱码
+                    if (window.CryptoJS) {
+                        let wordArray = CryptoJS.enc.Utf8.parse(this.base64Left);
+                        this.base64Right = CryptoJS.enc.Base64.stringify(wordArray);
+                    } else {
+                        // 降级方案
+                        this.base64Right = window.btoa(unescape(encodeURIComponent(this.base64Left)));
+                    }
+                } catch (e) {
+                    this.base64Error = "编码失败: " + e.message;
+                }
+            },
+            doBase64Decode() {
+                this.base64Error = '';
+                if (!this.base64Right) return;
+                try {
+                    if (window.CryptoJS) {
+                        let parsedWordArray = CryptoJS.enc.Base64.parse(this.base64Right);
+                        this.base64Left = parsedWordArray.toString(CryptoJS.enc.Utf8);
+                    } else {
+                        this.base64Left = decodeURIComponent(escape(window.atob(this.base64Right)));
+                    }
+                    if (!this.base64Left && this.base64Right) {
+                        this.base64Error = "解码结果为空，请检查 Base64 格式是否正确";
+                    }
+                } catch (e) {
+                    this.base64Error = "解码失败: 无效的 Base64 字符串";
+                }
+            },
+            clearBase64() {
+                this.base64Left = '';
+                this.base64Right = '';
+                this.base64Error = '';
+            },
+            copyToClip(content) {
+                // 转为字符串，防止数字报错
+                const text = String(content);
+
+                if (navigator.clipboard) {
+                    // 现代浏览器 API
+                    navigator.clipboard.writeText(text).then(() => {
+                        // 这里可以使用一个轻提示，或者简单的 alert
+                        // 为了体验好，建议做一个 toast，这里简单演示用 alert 或控制台
+                        // alert("复制成功: " + text);
+                        this.showToast("复制成功: " + text); // 建议实现下面的 showToast
+                    }).catch(err => {
+                        console.error('复制失败', err);
+                    });
+                } else {
+                    // 兼容旧浏览器
+                    const textarea = document.createElement('textarea');
+                    textarea.value = text;
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                    this.showToast("复制成功: " + text);
+                }
+            },
+            showToast(msg) {
+                // 创建一个临时 div 显示提示
+                let toast = document.createElement('div');
+                toast.innerText = msg;
+                toast.style.position = 'fixed';
+                toast.style.top = '20px';
+                toast.style.left = '50%';
+                toast.style.transform = 'translateX(-50%)';
+                toast.style.background = 'rgba(0,0,0,0.7)';
+                toast.style.color = '#fff';
+                toast.style.padding = '10px 20px';
+                toast.style.borderRadius = '4px';
+                toast.style.zIndex = '9999';
+                toast.style.fontSize = '14px';
+                document.body.appendChild(toast);
+                setTimeout(() => {
+                    document.body.removeChild(toast);
+                }, 2000);
+            }
         }
     });
 </script>
