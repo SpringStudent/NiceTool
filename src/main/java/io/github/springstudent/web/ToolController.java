@@ -2,6 +2,9 @@ package io.github.springstudent.web;
 
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.json.JSONUtil;
+import io.github.springstudent.autocode.domain.Column;
+import io.github.springstudent.autocode.domain.SqlInfo;
+import io.github.springstudent.autocode.util.SqlAnaly;
 import io.github.springstudent.bean.AddWatermarkRequest;
 import io.github.springstudent.bean.InterfaceLimit;
 import io.github.springstudent.bean.ResponseEntity;
@@ -30,6 +33,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 /**
  * @author 周宁
@@ -102,8 +106,8 @@ public class ToolController {
     }
 
     @PostMapping(consumes = "multipart/form-data", value = "/addWatermark")
-    public org.springframework.http.ResponseEntity<byte[]> addWatermark(@ModelAttribute AddWatermarkRequest request)
-            throws IOException, Exception {
+    @InterfaceLimit
+    public org.springframework.http.ResponseEntity<byte[]> addWatermark(@ModelAttribute AddWatermarkRequest request) throws IOException, Exception {
         MultipartFile pdfFile = request.getFileInput();
         String watermarkType = request.getWatermarkType();
         String watermarkText = request.getWatermarkText();
@@ -116,33 +120,14 @@ public class ToolController {
         int heightSpacer = request.getHeightSpacer();
         PDDocument document = Loader.loadPDF(pdfFile.getBytes());
         for (PDPage page : document.getPages()) {
-            PDPageContentStream contentStream =
-                    new PDPageContentStream(
-                            document, page, PDPageContentStream.AppendMode.APPEND, true, true);
+            PDPageContentStream contentStream = new PDPageContentStream(document, page, PDPageContentStream.AppendMode.APPEND, true, true);
             PDExtendedGraphicsState graphicsState = new PDExtendedGraphicsState();
             graphicsState.setNonStrokingAlphaConstant(opacity);
             contentStream.setGraphicsStateParameters(graphicsState);
             if ("text".equalsIgnoreCase(watermarkType)) {
-                WatermarkUtils.addTextWatermark(
-                        contentStream,
-                        watermarkText,
-                        document,
-                        page,
-                        rotation,
-                        widthSpacer,
-                        heightSpacer,
-                        fontSize,
-                        alphabet);
+                WatermarkUtils.addTextWatermark(contentStream, watermarkText, document, page, rotation, widthSpacer, heightSpacer, fontSize, alphabet);
             } else if ("image".equalsIgnoreCase(watermarkType)) {
-                WatermarkUtils.addImageWatermark(
-                        contentStream,
-                        watermarkImage,
-                        document,
-                        page,
-                        rotation,
-                        widthSpacer,
-                        heightSpacer,
-                        fontSize);
+                WatermarkUtils.addImageWatermark(contentStream, watermarkImage, document, page, rotation, widthSpacer, heightSpacer, fontSize);
             }
             contentStream.close();
         }
@@ -157,4 +142,17 @@ public class ToolController {
         return new org.springframework.http.ResponseEntity<>(baos.toByteArray(), headers, HttpStatus.OK);
     }
 
+    @GetMapping("/sqlToPojo")
+    public ResponseEntity<List<Column>> sqlToPojo(@RequestParam String sql) {
+        try {
+            SqlInfo sqlInfo = SqlAnaly.analy(sql);
+            if (!sqlInfo.isValid()) {
+                return ResponseEntity.fail("无法解析出有效的表结构信息，请检查SQL语句的正确性", 500);
+            } else {
+                return ResponseEntity.success(sqlInfo.getColumnList());
+            }
+        } catch (Exception e) {
+            return ResponseEntity.fail("SQL解析失败：" + e.getMessage(), 500);
+        }
+    }
 }

@@ -62,7 +62,7 @@
             flex-shrink: 0;
             display: flex;
             flex-direction: column;
-            box-shadow: 2px 0 8px rgba(0,0,0,0.15);
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
             z-index: 10;
         }
 
@@ -77,7 +77,9 @@
             letter-spacing: 1px;
         }
 
-        .brand i { margin-right: 10px; }
+        .brand i {
+            margin-right: 10px;
+        }
 
         .nav-menu {
             padding: 0;
@@ -104,7 +106,7 @@
 
         .nav-item:hover {
             color: white;
-            background-color: rgba(255,255,255,0.08);
+            background-color: rgba(255, 255, 255, 0.08);
         }
 
         .nav-item.active {
@@ -125,7 +127,7 @@
         .card {
             background: var(--card-bg);
             border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             padding: 24px;
             height: 100%;
             display: flex;
@@ -187,15 +189,21 @@
         .btn-primary {
             background-color: var(--active-bg);
             color: white;
-            box-shadow: 0 2px 0 rgba(0,0,0,0.045);
+            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.045);
         }
 
         .btn-primary:hover {
             background-color: #40a9ff;
         }
 
-        .btn-success { background-color: #52c41a; color: white; }
-        .btn-success:hover { background-color: #73d13d; }
+        .btn-success {
+            background-color: #52c41a;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #73d13d;
+        }
 
         /* 特殊区域布局 */
         /* JSON 区域 */
@@ -204,6 +212,7 @@
             gap: 20px;
             height: calc(100% - 60px);
         }
+
         .json-box {
             flex: 1;
             display: flex;
@@ -212,6 +221,7 @@
             border-radius: 4px;
             overflow: hidden;
         }
+
         .json-box-header {
             background: #fafafa;
             padding: 8px 12px;
@@ -219,6 +229,7 @@
             font-size: 12px;
             color: #888;
         }
+
         .json-textarea {
             flex: 1;
             width: 100%;
@@ -245,35 +256,43 @@
             border-radius: 4px;
             word-break: break-all;
         }
+
         .result-label {
             font-size: 16px;
             color: #666;
             margin-bottom: 10px;
             display: block;
         }
+
         .result-content {
             font-family: monospace;
             color: #000;
             font-size: 16px;
             font-weight: 500;
         }
-        .error-msg { color: #ff4d4f; }
+
+        .error-msg {
+            color: #ff4d4f;
+        }
 
         /* Time Convert Table */
         .time-table {
             width: 100%;
             border-collapse: collapse;
         }
+
         .time-table td {
             padding: 12px;
             border-bottom: 1px solid #f0f0f0;
         }
+
         .time-table input {
             width: 200px;
             padding: 6px;
             border: 1px solid #ddd;
             border-radius: 4px;
         }
+
         .time-badge {
             background: #000;
             color: #fff;
@@ -290,11 +309,13 @@
             align-items: flex-end;
             margin-bottom: 20px;
         }
+
         .form-item {
             display: flex;
             flex-direction: column;
             position: relative;
         }
+
         .input-error {
             color: #ff4d4f;
             font-size: 12px;
@@ -302,6 +323,7 @@
             bottom: -18px;
             left: 0;
         }
+
         /* JSON 专用布局 */
         .json-toolbar {
             height: 40px;
@@ -467,9 +489,17 @@
         .copy-icon:active {
             transform: scale(0.95); /* 点击回缩 */
         }
+
         /* CodeMirror Fixes */
-        .vue-codemirror { height: 100%; }
-        .CodeMirror { height: 100% !important; font-family: 'Consolas', monospace; font-size: 14px; }
+        .vue-codemirror {
+            height: 100%;
+        }
+
+        .CodeMirror {
+            height: 100% !important;
+            font-family: 'Consolas', monospace;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -505,6 +535,9 @@
             <li class="nav-item" :class="{active: divId=='base64'}" @click="divId='base64'">
                 <i class="fa-solid fa-exchange-alt"></i> Base64转换
             </li>
+            <li class="nav-item" :class="{active: divId=='sql2pojo'}" @click="changeDiv('sql2pojo')">
+                <i class="fa-solid fa-database"></i> SQL转POJO
+            </li>
         </ul>
     </aside>
 
@@ -513,7 +546,8 @@
 
         <!-- JSON 验证 -->
         <!-- JSON 验证/格式化 区域 -->
-        <div id="jsonPretty" v-show="divId=='jsonPretty'" class="card" style="padding: 0; display: flex; flex-direction: column; height: 100%;">
+        <div id="jsonPretty" v-show="divId=='jsonPretty'" class="card"
+             style="padding: 0; display: flex; flex-direction: column; height: 100%;">
             <!-- 顶部工具栏 -->
             <div class="json-toolbar">
                 <div class="toolbar-left">
@@ -587,7 +621,7 @@
 
             <div class="result-box" v-show="uuids && uuids.length > 0">
                 <label class="result-label">已生成 {{uuids.length}} 个 UUID:</label>
-                <div class="result-content" style="max-height: 400px; overflow-y: auto;">
+                <div class="result-content" style="max-height: 600px; overflow-y: auto;">
                     <div v-for="uuid in uuids" :key="uuid" style="padding: 4px 0; border-bottom: 1px dashed #eee;">
                         {{uuid}}
                     </div>
@@ -617,7 +651,8 @@
         <div v-show="divId=='ipRegion'" class="card">
             <div class="page-header">IP 归属地查询</div>
             <div class="form-group" style="display:flex; gap:10px;">
-                <input type="text" class="text-input" style="width: 300px;" v-model="ipText" placeholder="输入 IP 地址"/>
+                <input type="text" class="text-input" style="width: 300px;" v-model="ipText"
+                       placeholder="输入 IP 地址"/>
                 <button @click="doIpRegion()" class="btn btn-primary">查询</button>
             </div>
             <div class="result-box" v-if="ipRegionResult!=''">
@@ -636,24 +671,28 @@
             <div class="image-form-row">
                 <div class="form-item">
                     <label class="form-label">背景色</label>
-                    <input type="color" v-model="imageColor" style="height: 38px; width: 60px; padding: 0; border: none; cursor: pointer;"/>
+                    <input type="color" v-model="imageColor"
+                           style="height: 38px; width: 60px; padding: 0; border: none; cursor: pointer;"/>
                 </div>
 
                 <div class="form-item">
                     <label class="form-label">宽度 (px)</label>
-                    <input type="number" class="number-input" v-model="imageWidth" placeholder="100-2000" style="width: 120px;">
+                    <input type="number" class="number-input" v-model="imageWidth" placeholder="100-2000"
+                           style="width: 120px;">
                     <span class="input-error" v-show="imageWidthError">{{imageWidthError}}</span>
                 </div>
 
                 <div class="form-item">
                     <label class="form-label">高度 (px)</label>
-                    <input type="number" class="number-input" v-model="imageHeight" placeholder="100-2000" style="width: 120px;">
+                    <input type="number" class="number-input" v-model="imageHeight" placeholder="100-2000"
+                           style="width: 120px;">
                     <span class="input-error" v-show="imageHeightError">{{imageHeightError}}</span>
                 </div>
 
                 <div class="form-item">
                     <label class="form-label">文件大小 (MB)</label>
-                    <input type="number" class="number-input" v-model="imageMB" placeholder="Max 200" style="width: 120px;">
+                    <input type="number" class="number-input" v-model="imageMB" placeholder="Max 200"
+                           style="width: 120px;">
                     <span class="input-error" v-show="imageMBError">{{imageMBError}}</span>
                 </div>
 
@@ -669,15 +708,21 @@
 
             <div class="form-group">
                 <button @click="doViewImage()" class="btn btn-primary"><i class="fa-regular fa-eye"></i> 预览</button>
-                <button @click="doCreateImage(1)" class="btn btn-success"><i class="fa-solid fa-download"></i> 下载</button>
+                <button @click="doCreateImage(1)" class="btn btn-success"><i class="fa-solid fa-download"></i> 下载
+                </button>
                 <span style="margin: 0 10px; color: #ccc;">|</span>
                 <span style="font-size: 13px; color: #666; margin-right: 10px;">批量下载:</span>
-                <button @click="doCreateImage(5)" class="btn" style="background: #e6f7ff; color: #1890ff; border: 1px solid #91d5ff;">5个</button>
-                <button @click="doCreateImage(10)" class="btn" style="background: #e6f7ff; color: #1890ff; border: 1px solid #91d5ff;">10个</button>
+                <button @click="doCreateImage(5)" class="btn"
+                        style="background: #e6f7ff; color: #1890ff; border: 1px solid #91d5ff;">5个
+                </button>
+                <button @click="doCreateImage(10)" class="btn"
+                        style="background: #e6f7ff; color: #1890ff; border: 1px solid #91d5ff;">10个
+                </button>
             </div>
 
             <div class="result-box" v-if="createImageResult!=''" style="text-align: center;">
-                <img :src="createImageResult" style="max-width: 100%; border: 1px solid #ddd; box-shadow: 0 2px 8px rgba(0,0,0,0.1);"/>
+                <img :src="createImageResult"
+                     style="max-width: 100%; border: 1px solid #ddd; box-shadow: 0 2px 8px rgba(0,0,0,0.1);"/>
             </div>
             <div class="result-box" v-if="createImageError!=''" style="background: #fff1f0;">
                 <span class="error-msg">{{createImageError}}</span>
@@ -709,27 +754,39 @@
                 <tr>
                     <td width="100">时间日期</td>
                     <td><input type="text" class="text-input" v-model="inputDate"></td>
-                    <td width="80"><button class="btn btn-primary" style="margin:0" @click="date2Mills()"> <i class="fa-solid fa-arrow-right"></i> </button></td>
+                    <td width="80">
+                        <button class="btn btn-primary" style="margin:0" @click="date2Mills()"><i
+                                class="fa-solid fa-arrow-right"></i></button>
+                    </td>
                     <td><input type="text" class="text-input" v-model="inputDateMills"></td>
                     <td width="80">毫秒</td>
                 </tr>
                 <tr>
                     <td>时间日期</td>
                     <td><input type="text" class="text-input" v-model="inputDate"></td>
-                    <td><button class="btn btn-primary" style="margin:0" @click="date2Seconds()"> <i class="fa-solid fa-arrow-right"></i> </button></td>
+                    <td>
+                        <button class="btn btn-primary" style="margin:0" @click="date2Seconds()"><i
+                                class="fa-solid fa-arrow-right"></i></button>
+                    </td>
                     <td><input type="text" class="text-input" v-model="inputDateSeconds"></td>
                     <td>秒</td>
                 </tr>
                 <tr>
                     <td>时间戳(秒)</td>
                     <td><input type="text" class="text-input" v-model="inputSeconds"></td>
-                    <td><button class="btn btn-primary" style="margin:0" @click="seconds2Date()"> <i class="fa-solid fa-arrow-right"></i> </button></td>
+                    <td>
+                        <button class="btn btn-primary" style="margin:0" @click="seconds2Date()"><i
+                                class="fa-solid fa-arrow-right"></i></button>
+                    </td>
                     <td colspan="2"><input type="text" class="text-input" v-model="inputSecondsDate"></td>
                 </tr>
                 <tr>
                     <td>时间戳(毫秒)</td>
                     <td><input type="text" class="text-input" v-model="inputMills"></td>
-                    <td><button class="btn btn-primary" style="margin:0" @click="mills2Date()"> <i class="fa-solid fa-arrow-right"></i> </button></td>
+                    <td>
+                        <button class="btn btn-primary" style="margin:0" @click="mills2Date()"><i
+                                class="fa-solid fa-arrow-right"></i></button>
+                    </td>
                     <td colspan="2"><input type="text" class="text-input" v-model="inputMillsDate"></td>
                 </tr>
                 </tbody>
@@ -741,7 +798,8 @@
 
             <div class="form-group">
                 <label class="form-label">输入内容:</label>
-                <textarea class="text-input" style="height:100px" v-model="urlInput" placeholder="输入 URL 或 字符串..."></textarea>
+                <textarea class="text-input" style="height:100px" v-model="urlInput"
+                          placeholder="输入 URL 或 字符串..."></textarea>
             </div>
 
             <div class="form-group">
@@ -752,7 +810,8 @@
 
             <div class="form-group">
                 <label class="form-label">转换结果:</label>
-                <textarea class="text-input" style="height:100px; background:#f9f9f9" readonly v-model="urlOutput"></textarea>
+                <textarea class="text-input" style="height:100px; background:#f9f9f9" readonly
+                          v-model="urlOutput"></textarea>
             </div>
         </div>
 
@@ -795,8 +854,61 @@
                 </div>
             </div>
             <!-- 错误提示 -->
-            <div v-if="base64Error" style="margin-top: 15px; color: #ff4d4f; background: #fff1f0; padding: 10px; border-radius: 4px;">
+            <div v-if="base64Error"
+                 style="margin-top: 15px; color: #ff4d4f; background: #fff1f0; padding: 10px; border-radius: 4px;">
                 <i class="fa-solid fa-circle-exclamation"></i> {{base64Error}}
+            </div>
+        </div>
+        <!-- SQL 转 POJO -->
+        <div v-show="divId=='sql2pojo'" class="card card-padded">
+            <div class="page-header">SQL 转 Java POJO</div>
+
+            <div class="form-group">
+                <label class="form-label">输入建表 SQL:</label>
+                <textarea class="text-input" style="height: 150px; font-family: monospace;"
+                          v-model="sqlToPojoInput"
+                          placeholder="请输入 CREATE TABLE 语句..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <button class="btn" @click="doSqlToPojo">
+                    <i class="fa-solid fa-arrow-down"></i> 转换
+                </button>
+                <button class="btn" style="background:#ff4d4f; margin-left: 10px;" @click="clearSqlPojo">
+                    <i class="fa-solid fa-trash"></i> 清空
+                </button>
+            </div>
+
+            <!-- 成功时：展示结果 -->
+            <div class="form-group" v-if="sqlToPojoOutput && !sqlToPojoError">
+                <!-- 头部栏：使用 flex 让 提示文字 和 复制按钮 左右分开 -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <label class="form-label" style="color: #52c41a; margin-bottom: 0;">
+                        <i class="fa-solid fa-check-circle"></i> 转换成功:
+                    </label>
+
+                    <!-- 复制按钮 -->
+                    <button class="btn"
+                            style="padding: 4px 12px; font-size: 12px; background-color: #52c41a; border: none;"
+                            @click="copyToClip(sqlToPojoOutput)"
+                            title="点击复制全部代码">
+                        <i class="fa-regular fa-copy"></i> 一键复制
+                    </button>
+                </div>
+
+                <textarea class="text-input"
+                          style="height: 350px; background: #f9f9f9; font-family: monospace; color: #2c3e50;"
+                          readonly
+                          v-model="sqlToPojoOutput"></textarea>
+            </div>
+
+            <!-- 失败时：展示错误信息 -->
+            <div v-if="sqlToPojoError"
+                 style="margin-top: 15px; color: #ff4d4f; background: #fff1f0; padding: 15px; border: 1px solid #ffa39e; border-radius: 4px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">
+                    <i class="fa-solid fa-circle-exclamation"></i> 转换失败
+                </div>
+                <div style="font-family: monospace; font-size: 13px; white-space: pre-wrap;">{{sqlToPojoError}}</div>
             </div>
         </div>
     </main>
@@ -846,9 +958,12 @@
             base64Left: '',
             base64Right: '',
             base64Error: '',
+            sqlToPojoInput: '',
+            sqlToPojoOutput: '',
+            sqlToPojoError: '',
             inputOption: {
                 tabSize: 2,
-                mode: 'application/json', // 确保引入了 javascript 模式，它包含 json
+                mode: 'application/json',
                 theme: 'eclipse',
                 lineNumbers: true,
                 lineWrapping: true,
@@ -976,8 +1091,8 @@
                 }
             },
             genUuid() {
-                return 'xxxxxxxxxxxx4xxxyxxxxxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-                    var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+                return 'xxxxxxxxxxxx4xxxyxxxxxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
                     return v.toString(16);
                 });
             },
@@ -989,7 +1104,7 @@
                     return;
                 }
                 // 确保 CryptoJS 已加载
-                if(window.CryptoJS) {
+                if (window.CryptoJS) {
                     this.md5Result = window.CryptoJS.MD5(this.md5Text).toString();
                 } else {
                     this.md5Error = "CryptoJS 库加载失败";
@@ -1065,7 +1180,9 @@
                                     reader.onload = () => {
                                         try {
                                             this.createImageError = JSON.parse(reader.result).msg;
-                                        } catch(e) { this.createImageError = "解析错误"; }
+                                        } catch (e) {
+                                            this.createImageError = "解析错误";
+                                        }
                                     }
                                 } else {
                                     const blob = new Blob([res.data], {type: responseType});
@@ -1208,10 +1325,7 @@
                 if (navigator.clipboard) {
                     // 现代浏览器 API
                     navigator.clipboard.writeText(text).then(() => {
-                        // 这里可以使用一个轻提示，或者简单的 alert
-                        // 为了体验好，建议做一个 toast，这里简单演示用 alert 或控制台
-                        // alert("复制成功: " + text);
-                        this.showToast("复制成功: " + text); // 建议实现下面的 showToast
+                        this.showToast("复制成功"); // 建议实现下面的 showToast
                     }).catch(err => {
                         console.error('复制失败', err);
                     });
@@ -1223,7 +1337,7 @@
                     textarea.select();
                     document.execCommand('copy');
                     document.body.removeChild(textarea);
-                    this.showToast("复制成功: " + text);
+                    this.showToast("复制成功");
                 }
             },
             showToast(msg) {
@@ -1244,7 +1358,62 @@
                 setTimeout(() => {
                     document.body.removeChild(toast);
                 }, 2000);
-            }
+            },
+            doSqlToPojo() {
+                this.sqlToPojoError = '';
+                this.sqlToPojoOutput = '';
+                if (!this.sqlToPojoInput.trim()) {
+                    this.sqlToPojoError = "请输入 SQL 语句";
+                    return;
+                }
+                // 2. 发起请求
+                axios.get(server_url + '/tool/sqlToPojo', {
+                    params: {
+                        sql: this.sqlToPojoInput
+                    }
+                })
+                    .then(res => {
+                        // 3. 判断业务状态码
+                        if (res.data.code === 200) {
+                            const resultList = res.data.result;
+
+                            // 拼接 Java 代码
+                            let code = "";
+                            if (resultList && resultList.length > 0) {
+                                resultList.forEach(item => {
+                                    // 按照你的要求：private String id;
+                                    // 如果有注释，也可以加在上面
+                                    if (item.comment) {
+                                        code += `    /** ${item.comment} */\n`;
+                                    }
+                                    code += `    private ${item.type} ${item.name};\n`;
+                                });
+                                this.sqlToPojoOutput = code; // 赋值结果，v-if 会使其显示
+                            } else {
+                                this.sqlToPojoError = "解析成功，但没有找到字段，请检查 SQL 是否包含字段定义。";
+                            }
+                        } else {
+                            // 业务失败
+                            this.sqlToPojoError = res.data.msg || "未知错误";
+                        }
+                    })
+                    .catch(err => {
+                        // 网络或系统异常
+                        console.error(err);
+                        let errMsg = "请求后端接口失败";
+                        if (err.response) {
+                            errMsg += ` (Status: ${err.response.status})`;
+                        } else if (err.message) {
+                            errMsg += ` (${err.message})`;
+                        }
+                        this.sqlToPojoError = errMsg + "\n请确保后端服务已启动且接口地址正确。";
+                    });
+            },
+            clearSqlPojo() {
+                this.sqlToPojoInput = '';
+                this.sqlToPojoOutput = '';
+                this.sqlToPojoError = '';
+            },
         }
     });
 </script>
