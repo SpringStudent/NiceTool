@@ -156,6 +156,8 @@ public class SqlAnaly {
     public static SqlInfo analy(String sql) {
         sql = cleanSql(sql);
         List<String> lines = analyColumnLine(sql);
+        String k = analyPrimaryKey(sql);
+        String n = analyTableName(sql);
         List<Column> colList = new ArrayList<Column>();
         if (lines != null && lines.size() > 0) {
             for (String line : lines) {
@@ -165,6 +167,9 @@ public class SqlAnaly {
                         try {
                             Column c = getColumn(line);
                             if (c != null) {
+                                if(c.getName().equals(k)){
+                                    c.setIsPrimaryKey(true);
+                                }
                                 colList.add(c);
                             }
                         } catch (Exception e) {
@@ -173,8 +178,6 @@ public class SqlAnaly {
                 }
             }
         }
-        String k = analyPrimaryKey(sql);
-        String n = analyTableName(sql);
         return new SqlInfo(n, k, colList);
     }
 }

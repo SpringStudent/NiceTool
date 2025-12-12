@@ -1386,7 +1386,7 @@
                                     if (item.comment) {
                                         code += `    /** ${item.comment} */\n`;
                                     }
-                                    code += `    private ${item.type} ${item.name};\n`;
+                                    code += `    private ${item.type} ${item.property};\n`;
                                 });
                                 this.sqlToPojoOutput = code; // 赋值结果，v-if 会使其显示
                             } else {
