@@ -12,7 +12,7 @@ public class TypeChanger {
         typeMap.put("TINYINT", "Integer");
         typeMap.put("SMALLINT", "Integer");
         typeMap.put("MEDIUMINT", "Integer");
-        typeMap.put("INT", "Long");
+        typeMap.put("INT", "Integer");
         typeMap.put("BIGINT", "Long");
         typeMap.put("DECIMAL", "BigDecimal");
         typeMap.put("FLOAT", "Float");
