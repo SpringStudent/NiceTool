@@ -55,7 +55,7 @@
             height: 100vh;
         }
 
-        /* 侧边栏样式 */
+        /* --- 侧边栏样式修改 (支持折叠) --- */
         .sidebar {
             width: 240px;
             background-color: var(--sidebar-bg);
@@ -64,12 +64,22 @@
             flex-direction: column;
             box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
             z-index: 10;
+            transition: width 0.3s ease-in-out; /* 关键：过渡动画 */
+            overflow: hidden;
+            white-space: nowrap; /* 防止收起时文字换行 */
+        }
+
+        /* 收起状态 */
+        .sidebar.collapsed {
+            width: 64px;
         }
 
         .brand {
             height: 64px;
-            line-height: 64px;
-            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
             color: white;
             font-size: 20px;
             font-weight: bold;
@@ -77,8 +87,41 @@
             letter-spacing: 1px;
         }
 
+        .brand-content {
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+        }
+
         .brand i {
             margin-right: 10px;
+        }
+
+        /* 折叠按钮 */
+        .collapse-trigger {
+            cursor: pointer;
+            font-size: 16px;
+            color: #fff;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+
+        .collapse-trigger:hover {
+            opacity: 1;
+        }
+
+        /* 收起时：隐藏 Brand 文字，调整按钮位置 */
+        .sidebar.collapsed .brand-content {
+            display: none;
+        }
+
+        .sidebar.collapsed .brand {
+            justify-content: center;
+            padding: 0;
+        }
+
+        .sidebar.collapsed .brand i {
+            margin-right: 0;
         }
 
         .nav-menu {
@@ -96,12 +139,14 @@
             display: flex;
             align-items: center;
             font-size: 14px;
+            overflow: hidden;
         }
 
         .nav-item i {
             margin-right: 10px;
             width: 20px;
             text-align: center;
+            font-size: 16px;
         }
 
         .nav-item:hover {
@@ -114,13 +159,29 @@
             color: white;
         }
 
-        /* 主体内容区 */
+        /* 收起时：隐藏菜单文字，居中图标 */
+        .sidebar.collapsed .nav-text {
+            display: none;
+            opacity: 0;
+        }
+
+        .sidebar.collapsed .nav-item {
+            justify-content: center;
+            padding: 15px 0;
+        }
+
+        .sidebar.collapsed .nav-item i {
+            margin-right: 0;
+        }
+
+        /* --- 主体内容区 --- */
         .main-content {
             flex: 1;
             padding: 24px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
+            width: 0; /* 关键：防止Flex子元素被宽内容撑开导致不收缩 */
         }
 
         /* 通用卡片样式 */
@@ -133,6 +194,11 @@
             display: flex;
             flex-direction: column;
             overflow: hidden; /* 防止内容溢出 */
+        }
+
+        /* 针对 padding=0 的卡片特殊处理 */
+        .card.no-padding {
+            padding: 0;
         }
 
         /* 标题 */
@@ -203,6 +269,15 @@
 
         .btn-success:hover {
             background-color: #73d13d;
+        }
+
+        .btn-danger {
+            background-color: #ff4d4f;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #ff7875;
         }
 
         /* 特殊区域布局 */
@@ -416,6 +491,7 @@
             display: flex;
             flex-direction: column;
             height: 100%;
+            min-width: 0; /* 允许 flex item 压缩 */
         }
 
         .base64-textarea {
@@ -505,38 +581,47 @@
 <body>
 <div id="app">
     <!-- 侧边栏 -->
-    <aside class="sidebar">
-        <div class="brand"><i class="fa-solid fa-toolbox"></i> 开发者工具</div>
+    <aside class="sidebar" :class="{ collapsed: isSidebarCollapsed }">
+        <div class="brand">
+            <div class="brand-content">
+                <i class="fa-solid fa-toolbox"></i>
+                <span class="brand-text">开发者工具</span>
+            </div>
+            <!-- 折叠切换按钮 -->
+            <div class="collapse-trigger" @click="toggleSidebar" title="收起/展开菜单">
+                <i :class="isSidebarCollapsed ? 'fa-solid fa-indent' : 'fa-solid fa-outdent'"></i>
+            </div>
+        </div>
         <ul class="nav-menu">
-            <li class="nav-item" :class="{active: divId=='jsonPretty'}" @click="changeDiv('jsonPretty')">
-                <i class="fa-solid fa-code"></i> JSON 验证
+            <li class="nav-item" :class="{active: divId=='jsonPretty'}" @click="changeDiv('jsonPretty')" title="JSON 验证">
+                <i class="fa-solid fa-code"></i> <span class="nav-text">JSON 验证</span>
             </li>
-            <li class="nav-item" :class="{active: divId=='textDiff'}" @click="changeDiv('textDiff')">
-                <i class="fa-solid fa-right-left"></i> 文本比对
+            <li class="nav-item" :class="{active: divId=='textDiff'}" @click="changeDiv('textDiff')" title="文本比对">
+                <i class="fa-solid fa-right-left"></i> <span class="nav-text">文本比对</span>
             </li>
-            <li class="nav-item" :class="{active: divId=='genUuid'}" @click="changeDiv('genUuid')">
-                <i class="fa-solid fa-fingerprint"></i> UUID生成
+            <li class="nav-item" :class="{active: divId=='genUuid'}" @click="changeDiv('genUuid')" title="UUID生成">
+                <i class="fa-solid fa-fingerprint"></i> <span class="nav-text">UUID生成</span>
             </li>
-            <li class="nav-item" :class="{active: divId=='md5'}" @click="changeDiv('md5')">
-                <i class="fa-solid fa-lock"></i> MD5加密
+            <li class="nav-item" :class="{active: divId=='md5'}" @click="changeDiv('md5')" title="MD5加密">
+                <i class="fa-solid fa-lock"></i> <span class="nav-text">MD5加密</span>
             </li>
-            <li class="nav-item" :class="{active: divId=='timeConvert'}" @click="changeDiv('timeConvert')">
-                <i class="fa-regular fa-clock"></i> 时间转换
+            <li class="nav-item" :class="{active: divId=='timeConvert'}" @click="changeDiv('timeConvert')" title="时间转换">
+                <i class="fa-regular fa-clock"></i> <span class="nav-text">时间转换</span>
             </li>
-            <li class="nav-item" :class="{active: divId=='createImage'}" @click="changeDiv('createImage')">
-                <i class="fa-regular fa-image"></i> 图片生成
+            <li class="nav-item" :class="{active: divId=='createImage'}" @click="changeDiv('createImage')" title="图片生成">
+                <i class="fa-regular fa-image"></i> <span class="nav-text">图片生成</span>
             </li>
-            <li class="nav-item" :class="{active: divId=='ipRegion'}" @click="changeDiv('ipRegion')">
-                <i class="fa-solid fa-location-dot"></i> IP归属地
+            <li class="nav-item" :class="{active: divId=='ipRegion'}" @click="changeDiv('ipRegion')" title="IP归属地">
+                <i class="fa-solid fa-location-dot"></i> <span class="nav-text">IP归属地</span>
             </li>
-            <li class="nav-item" :class="{active: divId=='urlConvert'}" @click="divId='urlConvert'">
-                <i class="fa-solid fa-link"></i> URL编解码
+            <li class="nav-item" :class="{active: divId=='urlConvert'}" @click="divId='urlConvert'" title="URL编解码">
+                <i class="fa-solid fa-link"></i> <span class="nav-text">URL编解码</span>
             </li>
-            <li class="nav-item" :class="{active: divId=='base64'}" @click="divId='base64'">
-                <i class="fa-solid fa-exchange-alt"></i> Base64转换
+            <li class="nav-item" :class="{active: divId=='base64'}" @click="divId='base64'" title="Base64转换">
+                <i class="fa-solid fa-exchange-alt"></i> <span class="nav-text">Base64转换</span>
             </li>
-            <li class="nav-item" :class="{active: divId=='sql2pojo'}" @click="changeDiv('sql2pojo')">
-                <i class="fa-solid fa-database"></i> SQL转POJO
+            <li class="nav-item" :class="{active: divId=='sql2pojo'}" @click="changeDiv('sql2pojo')" title="SQL转POJO">
+                <i class="fa-solid fa-database"></i> <span class="nav-text">SQL转POJO</span>
             </li>
         </ul>
     </aside>
@@ -545,18 +630,14 @@
     <main class="main-content">
 
         <!-- JSON 验证 -->
-        <!-- JSON 验证/格式化 区域 -->
-        <div id="jsonPretty" v-show="divId=='jsonPretty'" class="card"
-             style="padding: 0; display: flex; flex-direction: column; height: 100%;">
+        <div id="jsonPretty" v-show="divId=='jsonPretty'" class="card no-padding"
+             style="display: flex; flex-direction: column; height: 100%;">
             <!-- 顶部工具栏 -->
             <div class="json-toolbar">
                 <div class="toolbar-left">
                     <span class="tool-btn" @click="jsonPretty"><i class="fa-solid fa-indent"></i> 格式化</span>
                     <span class="tool-btn" @click="jsonCompress"><i class="fa-solid fa-compress"></i> 压缩</span>
                     <span class="tool-btn" @click="jsonClear"><i class="fa-solid fa-trash-can"></i> 清空</span>
-                </div>
-                <div class="toolbar-right">
-                    <!-- 可以在这里加 保存/复制 等按钮 -->
                 </div>
             </div>
 
@@ -582,11 +663,11 @@
                     <div class="pane-label">
                         解析结果 (Tree)
                         <span v-if="jsonError" style="color: #ff4d4f; font-size: 12px; margin-left: 10px;">
-                    <i class="fa-solid fa-circle-exclamation"></i> 格式错误
-                </span>
+                            <i class="fa-solid fa-circle-exclamation"></i> 格式错误
+                        </span>
                         <span v-else style="color: #52c41a; font-size: 12px; margin-left: 10px;">
-                    <i class="fa-solid fa-check-circle"></i> 有效
-                </span>
+                            <i class="fa-solid fa-check-circle"></i> 有效
+                        </span>
                     </div>
                     <!-- 结果显示 -->
                     <div v-if="jsonError" class="json-error-box">{{jsonError}}</div>
@@ -730,7 +811,7 @@
         </div>
 
         <!-- 时间转换 -->
-        <div v-show="divId=='timeConvert'" class="card card-padded">
+        <div v-show="divId=='timeConvert'" class="card">
             <div class="page-header">Unix 时间戳转换</div>
 
             <div style="margin-bottom: 30px; padding: 20px; background: #fdf6ec; border-radius: 6px; text-align: center;">
@@ -793,7 +874,7 @@
             </table>
         </div>
         <!-- URL 编码/解码 -->
-        <div v-show="divId=='urlConvert'" class="card card-padded">
+        <div v-show="divId=='urlConvert'" class="card">
             <div class="page-header">URL编码/解码</div>
 
             <div class="form-group">
@@ -805,7 +886,7 @@
             <div class="form-group">
                 <button class="btn" @click="doUrlEncode">编码 (Encode)</button>
                 <button class="btn btn-success" @click="doUrlDecode">解码 (Decode)</button>
-                <button class="btn" style="background:#ff4d4f" @click="urlInput=''; urlOutput=''">清空</button>
+                <button class="btn btn-danger" @click="urlInput=''; urlOutput=''">清空</button>
             </div>
 
             <div class="form-group">
@@ -860,7 +941,7 @@
             </div>
         </div>
         <!-- SQL 转 POJO -->
-        <div v-show="divId=='sql2pojo'" class="card card-padded">
+        <div v-show="divId=='sql2pojo'" class="card">
             <div class="page-header">SQL 转 Java POJO</div>
 
             <div class="form-group">
@@ -874,7 +955,7 @@
                 <button class="btn" @click="doSqlToPojo">
                     <i class="fa-solid fa-arrow-down"></i> 转换
                 </button>
-                <button class="btn" style="background:#ff4d4f; margin-left: 10px;" @click="clearSqlPojo">
+                <button class="btn btn-danger" style="margin-left: 10px;" @click="clearSqlPojo">
                     <i class="fa-solid fa-trash"></i> 清空
                 </button>
             </div>
@@ -914,13 +995,14 @@
     </main>
 </div>
 
-<!-- JS 逻辑部分，基本未变动，只微调了 UUID 清空逻辑以适配 UI -->
+<!-- JS 逻辑部分 -->
 <script type="module">
     const server_url = "http://localhost:8555";
     Vue.use(VueCodemirror)
     var vm = new Vue({
         el: "#app",
         data: {
+            isSidebarCollapsed: false, // 控制侧边栏收起状态
             divId: '',
             md5Text: '',
             ipText: '',
@@ -970,7 +1052,6 @@
                 styleActiveLine: true,
                 matchBrackets: true,
                 autoCloseBrackets: true,
-                // 输入框一般不需要折叠，但你想加也可以加
             },
             outputOption: {
                 tabSize: 2,
@@ -997,6 +1078,18 @@
             this.startTimer();
         },
         methods: {
+            // 切换侧边栏
+            toggleSidebar() {
+                this.isSidebarCollapsed = !this.isSidebarCollapsed;
+                // 动画持续 300ms，结束后触发 resize 事件，确保 TextDiff 和 CodeMirror 重新计算宽度
+                setTimeout(() => {
+                    window.dispatchEvent(new Event('resize'));
+                    // 强制刷新 Mergely (如果当前是文本比对页面)
+                    if (this.divId == 'textDiff') {
+                        $('#textDiffDiv').mergely('resize');
+                    }
+                }, 310);
+            },
             startTimer() {
                 setInterval(() => {
                     this.nowMillSeconds = new Date().getTime();
@@ -1015,33 +1108,24 @@
                 }
                 return true;
             },
-            // 监听输入变化，实时格式化
             handleJsonChange() {
                 this.jsonPretty();
             },
-            // 格式化逻辑
             jsonPretty() {
-                this.jsonError = ''; // 重置错误
+                this.jsonError = '';
                 if (!this.jsonInput) {
                     this.jsonOutput = '';
                     return;
                 }
                 try {
-                    // 使用 jsonlint 解析，它比原生 JSON.parse 报错更详细
                     var result = jsonlint.parse(this.jsonInput);
                     if (result) {
-                        // 格式化输出，缩进2空格
                         this.jsonOutput = JSON.stringify(result, null, 2);
                     }
                 } catch (e) {
-                    // 捕获错误显示在界面上
                     this.jsonError = e.message;
-                    // 可以在这里不清空 output，保留上一次正确的结果，或者清空看你喜好
-                    // this.jsonOutput = "";
                 }
             },
-
-            // 压缩逻辑
             jsonCompress() {
                 this.jsonError = '';
                 if (!this.jsonInput) return;
@@ -1052,8 +1136,6 @@
                     this.jsonError = e.message;
                 }
             },
-
-            // 清空
             jsonClear() {
                 this.jsonInput = '';
                 this.jsonOutput = '';
@@ -1061,10 +1143,8 @@
             },
             changeDiv(divId) {
                 this.divId = divId;
-                // 使用 nextTick 或 setTimeout 确保 DOM 更新
                 setTimeout(() => {
                     if (this.divId == 'textDiff') {
-                        // 确保 Mergely 容器可见后再初始化
                         $('#textDiffDiv').mergely({
                             lhs: function (setValue) {
                                 setValue('the quick red fox\njumped over the hairy dog');
@@ -1072,16 +1152,15 @@
                             rhs: function (setValue) {
                                 setValue('the quick brown fox\njumped over the lazy dog');
                             },
-                            editor_width: '100%', // 设为 100% 适配新布局
+                            editor_width: '100%',
                             editor_height: '100%',
-                            resize_on_window_resize: true // 开启自适应
+                            resize_on_window_resize: true
                         });
                     }
                 }, 100);
 
             },
             doGenUuid() {
-                // 先清空数组
                 this.uuids = [];
                 if (this.uuidCount == '' || this.uuidCount > 100) {
                     this.uuidCount = 100;
@@ -1103,7 +1182,6 @@
                     this.md5Error = '加密字符串不能为空';
                     return;
                 }
-                // 确保 CryptoJS 已加载
                 if (window.CryptoJS) {
                     this.md5Result = window.CryptoJS.MD5(this.md5Text).toString();
                 } else {
@@ -1284,12 +1362,10 @@
                 this.base64Error = '';
                 if (!this.base64Left) return;
                 try {
-                    // 使用 CryptoJS 处理中文，避免乱码
                     if (window.CryptoJS) {
                         let wordArray = CryptoJS.enc.Utf8.parse(this.base64Left);
                         this.base64Right = CryptoJS.enc.Base64.stringify(wordArray);
                     } else {
-                        // 降级方案
                         this.base64Right = window.btoa(unescape(encodeURIComponent(this.base64Left)));
                     }
                 } catch (e) {
@@ -1319,18 +1395,14 @@
                 this.base64Error = '';
             },
             copyToClip(content) {
-                // 转为字符串，防止数字报错
                 const text = String(content);
-
                 if (navigator.clipboard) {
-                    // 现代浏览器 API
                     navigator.clipboard.writeText(text).then(() => {
-                        this.showToast("复制成功"); // 建议实现下面的 showToast
+                        this.showToast("复制成功");
                     }).catch(err => {
                         console.error('复制失败', err);
                     });
                 } else {
-                    // 兼容旧浏览器
                     const textarea = document.createElement('textarea');
                     textarea.value = text;
                     document.body.appendChild(textarea);
@@ -1341,7 +1413,6 @@
                 }
             },
             showToast(msg) {
-                // 创建一个临时 div 显示提示
                 let toast = document.createElement('div');
                 toast.innerText = msg;
                 toast.style.position = 'fixed';
@@ -1366,39 +1437,31 @@
                     this.sqlToPojoError = "请输入 SQL 语句";
                     return;
                 }
-                // 2. 发起请求
                 axios.get(server_url + '/tool/sqlToPojo', {
                     params: {
                         sql: this.sqlToPojoInput
                     }
                 })
                     .then(res => {
-                        // 3. 判断业务状态码
                         if (res.data.code === 200) {
                             const resultList = res.data.result;
-
-                            // 拼接 Java 代码
                             let code = "";
                             if (resultList && resultList.length > 0) {
                                 resultList.forEach(item => {
-                                    // 按照你的要求：private String id;
-                                    // 如果有注释，也可以加在上面
                                     if (item.comment) {
                                         code += `    /** ${item.comment} */\n`;
                                     }
                                     code += `    private ${item.type} ${item.property};\n`;
                                 });
-                                this.sqlToPojoOutput = code; // 赋值结果，v-if 会使其显示
+                                this.sqlToPojoOutput = code;
                             } else {
                                 this.sqlToPojoError = "解析成功，但没有找到字段，请检查 SQL 是否包含字段定义。";
                             }
                         } else {
-                            // 业务失败
                             this.sqlToPojoError = res.data.msg || "未知错误";
                         }
                     })
                     .catch(err => {
-                        // 网络或系统异常
                         console.error(err);
                         let errMsg = "请求后端接口失败";
                         if (err.response) {
